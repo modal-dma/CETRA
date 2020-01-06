@@ -1,7 +1,4 @@
 
-<%@page import="org.json.JSONArray"%>
-<%@page import="java.io.BufferedReader"%>
-<%@page import="java.io.FileReader"%>
 <%@page import="java.io.FilenameFilter"%>
 <%@page import="java.io.File"%>
 <%@page import="com.modal.cetra.Constants"%>
@@ -30,24 +27,6 @@ String imageFiles[] = dir.list(new FilenameFilter() {
 
 System.out.println("files " + imageFiles);
 
-String sensorsFile = dirPath + File.separator + "sensors.txt";
-
-System.out.println("sensorsFile " + sensorsFile);
-
-FileReader fr = new FileReader(sensorsFile);
-BufferedReader br = new BufferedReader(fr);
-
-String json = br.readLine();
-
-System.out.println("sensors " + json);
-
-br.close();
-fr.close();
-
-JSONArray imagesArray = new JSONArray();
-JSONArray sensorArray = new JSONArray(json);
-
-
 %>
 
 <!DOCTYPE html>
@@ -73,11 +52,6 @@ JSONArray sensorArray = new JSONArray(json);
   <link href="css/sb-admin.css" rel="stylesheet">
 
 <link href="css/style.css" rel="stylesheet">
-<script>
-
-var imagesArray = [];
-
-</script>
 </head>
 
 <body id="page-top">
@@ -170,19 +144,18 @@ var imagesArray = [];
         <%
         for(String imageFile : imageFiles)
         {
-        	imagesArray.put(imageFile);
-        	
         	String url = context.getContextPath() + "/maps/" + mapName + "/" + imageFile;
         	
         	System.out.println("url " + url);
         	
         	%>
-        	<img class="mapimage <%=imageFile%>" name="<%=imageFile%>" src="<%=url %>">
+        	<img class="mapimage" name="<%=imageFile%>" src="<%=url %>">
         	<%
         }
         %>
-       
-       <input type="button" name="edit" value="Edit" onClick="onEdit();">
+        
+        <input type="button" name="save" value="Salva" onClick="onSave()">
+        
         </div> 
       </div>
       <!-- /.container-fluid -->
@@ -238,46 +211,62 @@ var imagesArray = [];
 
 <script>
 
-
+var sensorsMap = {};
 var sensorsArray = [];
 
 $(document).ready(function () {
-	
-	sensorsArray = <%=sensorArray.toString()%>;
-	
-	for(var i = 0; i < sensorsArray.length; i++)
-	{
-		var sensor = sensorsArray[i];
+	$('.mapimage').click(function (e) { //Default mouse Position 
+		var elm = $(this);
+	    var xPos = e.pageX - elm.offset().left;
+	    var yPos = e.pageY - elm.offset().top;
+		var imageFile = elm.attr("name");
 		
-		var imageFile = sensor.image;
-		
-		var mapImage = $( "img[name='" + imageFile + "']" )
-		
-		var w = mapImage.width();
-		var h = mapImage.height();
-		
-		var x = sensor.x * w + mapImage.offset().left;
-		var y = sensor.y * h + mapImage.offset().top;
-				    
-		console.log(x, y);
-		
-		var name = sensor.name;
-		
-		var div = $("<div />")
+	    console.log(xPos, yPos);
+	    
+	    xPos = xPos / elm.width();
+	    yPos = yPos / elm.height();
+	    
+	    console.log(xPos, yPos);
+	    
+	    var name = prompt("Nome sensore", "");
+	    if(sensorsMap[name] != null)
+	    {
+	    	alert("sensore " + name + " già presente");
+	    	return;
+	    }
+	    	
+	    var div = $("<div />")
         div.attr({"id": name, "class": 'sensor'});
-        div.css({"top": y - 10, "left": x - 7, "position": "absolute"});
+        div.css({"top": e.pageY - 10, "left": e.pageX - 7, "position": "absolute"});
         div.html(name);
         $("#content-wrapper").append(div);
-		
-	}
-	
+                 
+        sensorsMap[name] = name;       
+        sensorsArray.push({"x": xPos, "y": yPos, "name": name, "image": imageFile});
+	});	
 });
 
-function onEdit()
+function onSave()
 {
-	window.location.href = 'mapEdit.jsp?name=<%=mapName%>';
-};
-
+	var data = {"name": "<%=mapName%>", sensors: JSON.stringify(sensorsArray)};
+	
+	var posting = $.post( 
+  	{
+  			//"url": "http://phlay.us-east-2.elasticbeanstalk.com/ads/generateVideoAds",
+  		"url": "storeSensors.jsp",
+   		"data":	{ "data": data},
+  		"timeout": 1200000
+  	});
+	
+	posting.fail(function( error, textStatus, errorThrown ) {
+    	alert( textStatus );
+    });
+	    
+    /* Alerts the results */
+    posting.done(function( data ) {
+    	   	  
+    });
+}
 </script>
 </body>
 
