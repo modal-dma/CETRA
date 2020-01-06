@@ -1,0 +1,9 @@
+@charset "ISO-8859-1";
+
+.sensor {
+	font-size: 14px;
+	font-weight: bold;
+	padding: 5px;
+	background-color: #03F7A3;
+	border: solid 1px black;
+}
