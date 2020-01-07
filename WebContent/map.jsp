@@ -30,23 +30,29 @@ String imageFiles[] = dir.list(new FilenameFilter() {
 
 System.out.println("files " + imageFiles);
 
-String sensorsFile = dirPath + File.separator + "sensors.txt";
+String sensors = dirPath + File.separator + "sensors.json";
 
-System.out.println("sensorsFile " + sensorsFile);
+System.out.println("sensorsFile " + sensors);
 
-FileReader fr = new FileReader(sensorsFile);
-BufferedReader br = new BufferedReader(fr);
+JSONArray sensorArray = null;
 
-String json = br.readLine();
-
-System.out.println("sensors " + json);
-
-br.close();
-fr.close();
+File sensorsFile = new File(sensors);
+if(sensorsFile.exists())
+{
+	FileReader fr = new FileReader(sensorsFile);
+	BufferedReader br = new BufferedReader(fr);
+	
+	String json = br.readLine();
+	
+	System.out.println("sensors " + json);
+	
+	br.close();
+	fr.close();
+	
+	sensorArray = new JSONArray(json);
+}
 
 JSONArray imagesArray = new JSONArray();
-JSONArray sensorArray = new JSONArray(json);
-
 
 %>
 
@@ -71,7 +77,15 @@ JSONArray sensorArray = new JSONArray(json);
 
   <!-- Custom styles for this template-->
   <link href="css/sb-admin.css" rel="stylesheet">
+  
+     <link href="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.js" type="text/javascript"></script>
+
+    <script src="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.ui.position.min.js" type="text/javascript"></script>
+  
+ 
 <link href="css/style.css" rel="stylesheet">
 <script>
 
@@ -177,12 +191,14 @@ var imagesArray = [];
         	System.out.println("url " + url);
         	
         	%>
-        	<img class="mapimage <%=imageFile%>" name="<%=imageFile%>" src="<%=url %>">
+        	<img class="mapimage" name="<%=imageFile%>" src="<%=url %>">
         	<%
         }
         %>
        
-       <input type="button" name="edit" value="Edit" onClick="onEdit();">
+       	 <input type="button" name="save" value="Salva" onClick="onSave()">
+         <input type="button" name="save" value="Genera" onClick="onGenerate()">
+        
         </div> 
       </div>
       <!-- /.container-fluid -->
@@ -227,7 +243,9 @@ var imagesArray = [];
   </div>
 
   <!-- Bootstrap core JavaScript-->
+  <!-- 
   <script src="vendor/jquery/jquery.min.js"></script>
+   -->
   <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
   <!-- Core plugin JavaScript-->
@@ -238,12 +256,57 @@ var imagesArray = [];
 
 <script>
 
-
 var sensorsArray = [];
+var sensorsMap = {};
 
 $(document).ready(function () {
+
+	<% if(sensorArray != null)
+	{
+	%>
+		sensorsArray = <%=sensorArray.toString()%>;
 	
-	sensorsArray = <%=sensorArray.toString()%>;
+		printSensors();
+		<%
+	}
+	%>
+	
+	$('.mapimage').click(function (e) { //Default mouse Position 
+		var elm = $(this);
+	    var xPos = e.pageX - elm.offset().left;
+	    var yPos = e.pageY - elm.offset().top;
+		var imageFile = elm.attr("name");
+		
+	    console.log(xPos, yPos);
+	    
+	    xPos = xPos / elm.width();
+	    yPos = yPos / elm.height();
+	    
+	    console.log(xPos, yPos);
+	    
+	    var name = prompt("Nome sensore", "");
+	    if(sensorsMap[name] != null)
+	    {
+	    	alert("sensore " + name + " già presente");
+	    	return;
+	    }
+	    	
+	    var div = $("<div />")
+        div.attr({"id": name, "class": 'sensor context-menu-one'});
+        div.css({"top": e.pageY - 10, "left": e.pageX - 7, "position": "absolute"});
+        div.html(name);
+        $("#content-wrapper").append(div);
+                 
+        sensorsMap[name] = name;       
+        sensorsArray.push({"x": xPos, "y": yPos, "name": name, "image": imageFile});
+	});	
+});
+
+
+function printSensors()
+{
+	$('.sensor').remove();
+	sensorsMap = {};
 	
 	for(var i = 0; i < sensorsArray.length; i++)
 	{
@@ -263,20 +326,94 @@ $(document).ready(function () {
 		
 		var name = sensor.name;
 		
+		sensorsMap[name] = name;       
+		
 		var div = $("<div />")
-        div.attr({"id": name, "class": 'sensor'});
+        div.attr({"id": name, "class": 'sensor context-menu-one', "index": i});
         div.css({"top": y - 10, "left": x - 7, "position": "absolute"});
         div.html(name);
         $("#content-wrapper").append(div);
 		
-	}
-	
-});
+	}	
+}
 
-function onEdit()
+function onSave()
 {
-	window.location.href = 'mapEdit.jsp?name=<%=mapName%>';
-};
+	var data = {"name": "<%=mapName%>", "sensors": JSON.stringify(sensorsArray)};
+	
+	var posting = $.post("storeSensors.jsp", data, function() {
+		
+	})
+	.fail(function( error, textStatus, errorThrown ) {
+    	alert( textStatus + " " + errorThrown);
+    })
+    .done(function( data ) {
+    	   	  
+    });
+}
+
+function onGenerate()
+{
+	var data = {"name": "<%=mapName%>", "sensors": JSON.stringify(sensorsArray)};
+	
+	var posting = $.post( 
+  	{
+  			//"url": "http://phlay.us-east-2.elasticbeanstalk.com/ads/generateVideoAds",
+  		"url": "generatePaths.jsp",
+   		"data":	{ "data": data},
+  		"timeout": 1200000
+  	});
+	
+	posting.fail(function( error, textStatus, errorThrown ) {
+    	alert( textStatus );
+    });
+	    
+    /* Alerts the results */
+    posting.done(function( data ) {
+    	   	  
+    });
+}
+
+$(function() {
+    $.contextMenu({
+        selector: '.context-menu-one', 
+        callback: function(key, options) {
+            var m = "clicked: " + key;
+                       
+            if(key == "delete")
+            {
+            	console.log('delete clicked');
+           
+                var sensor = $(this);
+
+                var index = $(sensor).attr('index');
+                
+                var sensorItem = sensorsArray[index];                               
+                
+                sensorsArray.splice(index, 1);
+                
+                printSensors();
+            }
+            //window.console && console.log(m) || alert(m); 
+        },
+        items: {
+        	
+            //"edit": {name: "Edit", icon: "edit"},
+            //"cut": {name: "Cut", icon: "cut"},
+           //copy: {name: "Copy", icon: "copy"},
+           // "paste": {name: "Paste", icon: "paste"},
+            "delete": {name: "Delete", icon: "delete"},
+            "sep1": "---------",
+            "quit": {name: "Quit", icon: function(){
+                return 'context-menu-icon context-menu-icon-quit';
+            }}
+        }
+    });
+
+    $('.context-menu-one').on('click', function(e){
+        console.log('clicked', this);
+    })    
+});
 
 </script>
 </body>

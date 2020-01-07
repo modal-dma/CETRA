@@ -149,13 +149,13 @@ System.out.println("files " + imageFiles);
         	System.out.println("url " + url);
         	
         	%>
-        	<img class="mapimage" name="<%=imageFile%>" src="<%=url %>">
+        	<img class="mapimage context-menu-one" name="<%=imageFile%>" src="<%=url %>">
         	<%
         }
         %>
         
         <input type="button" name="save" value="Salva" onClick="onSave()">
-        
+        <input type="button" name="save" value="Genera" onClick="onGenerate()">
         </div> 
       </div>
       <!-- /.container-fluid -->
@@ -267,6 +267,53 @@ function onSave()
     	   	  
     });
 }
+
+function onGenerate()
+{
+	var data = {"name": "<%=mapName%>", sensors: JSON.stringify(sensorsArray)};
+	
+	var posting = $.post( 
+  	{
+  			//"url": "http://phlay.us-east-2.elasticbeanstalk.com/ads/generateVideoAds",
+  		"url": "generatePaths.jsp",
+   		"data":	{ "data": data},
+  		"timeout": 1200000
+  	});
+	
+	posting.fail(function( error, textStatus, errorThrown ) {
+    	alert( textStatus );
+    });
+	    
+    /* Alerts the results */
+    posting.done(function( data ) {
+    	   	  
+    });
+}
+
+$(function() {
+    $.contextMenu({
+        selector: '.context-menu-one', 
+        callback: function(key, options) {
+            var m = "clicked: " + key;
+            window.console && console.log(m) || alert(m); 
+        },
+        items: {
+            "edit": {name: "Edit", icon: "edit"},
+            "cut": {name: "Cut", icon: "cut"},
+           copy: {name: "Copy", icon: "copy"},
+            "paste": {name: "Paste", icon: "paste"},
+            "delete": {name: "Delete", icon: "delete"},
+            "sep1": "---------",
+            "quit": {name: "Quit", icon: function(){
+                return 'context-menu-icon context-menu-icon-quit';
+            }}
+        }
+    });
+
+    $('.context-menu-one').on('click', function(e){
+        console.log('clicked', this);
+    })    
+});
 </script>
 </body>
 

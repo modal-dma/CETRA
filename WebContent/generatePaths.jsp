@@ -7,22 +7,21 @@
 <%@ page import = "org.apache.commons.io.output.*" %>
 
 <%
-	String mapName = request.getParameter("name");
-	String sensors = request.getParameter("sensors");
+	String mapName = request.getParameter("data[name]");
+	String sensors = request.getParameter("data[sensors]");
 
 	System.out.println("mapName " + mapName);
 	System.out.println("sensors " + sensors);
 	
 	JSONArray sensorsArray = new JSONArray(sensors);
-	
 	System.out.println("sensorsArray " + sensorsArray);	
 	
 	ServletContext context = pageContext.getServletContext();
    
   	String dirPath = context.getRealPath("") + "maps" + File.separator + mapName;
        
-  	File file = new File(dirPath, "sensors.json");
-  	
+  	File file = new File(dirPath, "sensors.txt");
+  	  	
     try 
     {        
    		FileWriter fw = new FileWriter(file);
@@ -35,4 +34,9 @@
    		ex.printStackTrace();
    		response.sendError(500);
     }
+    
+  	JSONArray sensorArray = new JSONArray(sensors);
+  	
+  	
+
 %>
