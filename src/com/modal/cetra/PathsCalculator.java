@@ -21,12 +21,12 @@ public class PathsCalculator {
 	
 	public PathsCalculator(BufferedImage image)
 	{		
-		this.image = image;						
+		this.image = image;
+		imageGray = Utils.convertImageToGrayscale(image);
 	}
 	
 	public JSONArray generate(double x0, double y0, double x1, double y1)
 	{
-		imageGray = Utils.convertImageToGrayscale(image);
 		GraphBitmap graphBitmap = new GraphBitmap();	    
 	    graphBitmap.setBitmap(Utils.copyImage(imageGray));
 	    

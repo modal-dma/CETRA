@@ -30,13 +30,16 @@ public class Dijkstra {
 
     	graphBitmap = Utils.copyImage(graph.getBitmap());
     
-    	int v = graphBitmap.getRGB(350, 567);
+//    	int v = graphBitmap.getRGB(350, 567);
+//    	
+//    	System.out.println("v :" + v);
+//    	System.out.println("v :" + new BigInteger("" + v).toString(16));
+//    	
+//    	System.out.println("v :" + (0x00FFFFFF & v));
+//    	System.out.println("v :" + new BigInteger("" + (0x00FFFFFF & v)).toString(16));
+//    	
+//    	System.out.println("v :" + BigInteger.valueOf(v).toString(16));
     	
-    	System.out.println("v :" + v);
-    	System.out.println("v :" + new BigInteger("" + v).toString(16));
-    	
-    	System.out.println("v :" + (0x00FFFFFF & v));
-    	System.out.println("v :" + new BigInteger("" + (0x00FFFFFF & v)).toString(16));
     	
     	
     	Dijkstra.end = end;
@@ -62,7 +65,7 @@ public class Dijkstra {
                     unsettledNodes.add(adjacentNode);
                 }
                 
-                if(adjacentNode.equals(end))
+                if(currentNode.equals(end))
                 {
                 	System.out.println("end: " + end);
                 	end.shortestPath = adjacentNode.shortestPath;
@@ -138,6 +141,29 @@ public class Dijkstra {
 			adjNode.put(node, 1);
 		}
 		
+		if(x0 >= 0 && y0 > 0 && ((0x00FFFFFF & bitmap.getRGB(x0, y0)) > THRESHOULD))
+		{
+			node = new Node(x0, y0);
+			adjNode.put(node, 1);
+		}
+		
+		if(x1 < bitmap.getWidth() && y0 > 0 && ((0x00FFFFFF & bitmap.getRGB(x1, y0)) > THRESHOULD))
+		{
+			node = new Node(x1, y0);
+			adjNode.put(node, 1);
+		}
+		
+		if(y1 < bitmap.getHeight() && x0 > 0 && ((0x00FFFFFF & bitmap.getRGB(x0, y1)) > THRESHOULD))
+		{
+			node = new Node(x0, y1);
+			adjNode.put(node, 1);
+		}
+		
+		if(x1 < bitmap.getWidth() && y1 < bitmap.getHeight() && ((0x00FFFFFF & bitmap.getRGB(x1, y1)) > THRESHOULD))
+		{
+			node = new Node(x1, y1);
+			adjNode.put(node, 1);
+		}
 //		System.out.println(currentNode);
 //		System.out.println(adjNode.toString());
 		
