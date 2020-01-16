@@ -85,6 +85,19 @@ JSONArray imagesArray = new JSONArray();
 
     <script src="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.ui.position.min.js" type="text/javascript"></script>
   
+  <script src="./js/jajaxloader.js"></script>
+  
+  <link rel="stylesheet" href="./skin/jajaxloader.css">
+<link rel="stylesheet" href="./skin/lukehaas/vertical_bars.css">
+<link rel="stylesheet" href="./skin/lukehaas/circle_on_path.css">
+<link rel="stylesheet" href="./skin/lukehaas/tear_ball.css">
+<link rel="stylesheet" href="./skin/vulchivijay/rosace.css">
+<link rel="stylesheet" href="./skin/cssload/thecube.css">
+<link rel="stylesheet" href="./skin/cssload/colordots.css">
+<link rel="stylesheet" href="./skin/cssload/flipping_square.css">
+<link rel="stylesheet" href="./skin/cssload/spinning_square.css">
+<link rel="stylesheet" href="./skin/cssload/zenith.css">
+<link rel="stylesheet" href="./skin/cssload/ventilator.css">
  
 <link href="css/style.css" rel="stylesheet">
 <script>
@@ -104,56 +117,7 @@ var imagesArray = [];
       <i class="fas fa-bars"></i>
     </button>
 
-    <!-- Navbar Search -->
-    <form class="d-none d-md-inline-block form-inline ml-auto mr-0 mr-md-3 my-2 my-md-0">
-      <div class="input-group">
-        <input type="text" class="form-control" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
-        <div class="input-group-append">
-          <button class="btn btn-primary" type="button">
-            <i class="fas fa-search"></i>
-          </button>
-        </div>
-      </div>
-    </form>
-
-    <!-- Navbar -->
-    <ul class="navbar-nav ml-auto ml-md-0">
-      <li class="nav-item dropdown no-arrow mx-1">
-        <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <i class="fas fa-bell fa-fw"></i>
-          <span class="badge badge-danger">9+</span>
-        </a>
-        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="alertsDropdown">
-          <a class="dropdown-item" href="#">Action</a>
-          <a class="dropdown-item" href="#">Another action</a>
-          <div class="dropdown-divider"></div>
-          <a class="dropdown-item" href="#">Something else here</a>
-        </div>
-      </li>
-      <li class="nav-item dropdown no-arrow mx-1">
-        <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <i class="fas fa-envelope fa-fw"></i>
-          <span class="badge badge-danger">7</span>
-        </a>
-        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="messagesDropdown">
-          <a class="dropdown-item" href="#">Action</a>
-          <a class="dropdown-item" href="#">Another action</a>
-          <div class="dropdown-divider"></div>
-          <a class="dropdown-item" href="#">Something else here</a>
-        </div>
-      </li>
-      <li class="nav-item dropdown no-arrow">
-        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <i class="fas fa-user-circle fa-fw"></i>
-        </a>
-        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
-          <a class="dropdown-item" href="#">Settings</a>
-          <a class="dropdown-item" href="#">Activity Log</a>
-          <div class="dropdown-divider"></div>
-          <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">Logout</a>
-        </div>
-      </li>
-    </ul>
+   <jsp:include page="navbaradmin.jsp"/>
 
   </nav>
 
@@ -171,13 +135,13 @@ var imagesArray = [];
           <li class="breadcrumb-item">
             <a href="index.html">Dashboard</a>
           </li>
-          <li class="breadcrumb-item active">Mappa <%=mapName %></li>
+          <li class="breadcrumb-item active"><%=mapName %></li>
         </ol>
 
         <!-- Page Content -->
-        <h1>Amministrazione</h1>
+        <h1>Editing mappa</h1>
         <hr>
-        <p>Mappa <%=mapName %></p>
+        <p><%=mapName %></p>
         
         <div>
         
@@ -269,8 +233,8 @@ $(document).ready(function () {
 		printSensors();
 		<%
 	}
-	%>
-	
+	%>	
+		
 	$('.mapimage').click(function (e) { //Default mouse Position 
 		var elm = $(this);
 	    var xPos = e.pageX - elm.offset().left;
@@ -354,23 +318,23 @@ function onSave()
 
 function onGenerate()
 {
+	$('#wrapper').ajaxloader({
+		  cssClass: 'ventilator'
+		});
+	
+	
+	$('#wrapper').ajaxloader();
+	
 	var data = {"name": "<%=mapName%>", "sensors": JSON.stringify(sensorsArray)};
 	
-	var posting = $.post( 
-  	{
-  			//"url": "http://phlay.us-east-2.elasticbeanstalk.com/ads/generateVideoAds",
-  		"url": "generatePaths.jsp",
-   		"data":	{ "data": data},
-  		"timeout": 1200000
-  	});
-	
-	posting.fail(function( error, textStatus, errorThrown ) {
-    	alert( textStatus );
-    });
-	    
-    /* Alerts the results */
-    posting.done(function( data ) {
-    	   	  
+	var posting = $.post("generatePaths.jsp", data, function() {
+		
+	})
+	.fail(function( error, textStatus, errorThrown ) {
+    	alert( textStatus + " " + errorThrown);
+    })
+    .done(function( data ) {
+    	$('#wrapper').ajaxloader("stop");
     });
 }
 

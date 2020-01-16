@@ -44,6 +44,7 @@ System.out.println("files " + mapDirs);
         %>
         </div>
       </li>
+      <!-- 
       <li class="nav-item">
         <a class="nav-link" href="charts.html">
           <i class="fas fa-fw fa-chart-area"></i>
@@ -54,4 +55,5 @@ System.out.println("files " + mapDirs);
           <i class="fas fa-fw fa-table"></i>
           <span>Tables</span></a>
       </li>
+       -->
     </ul>

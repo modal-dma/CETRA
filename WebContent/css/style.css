@@ -1,9 +1,20 @@
 @charset "ISO-8859-1";
 
 .sensor {
-	font-size: 14px;
+	font-size: 9px;
+	text-align: center;
+	vertical-align: middle;
+	padding: 5px;
 	font-weight: bold;
 	padding: 5px;
+	width: 25px;
+	height: 25px;
+	border-radius: 10px;
 	background-color: #03F7A3;
 	border: solid 1px black;
+}
+
+.mapimage {
+	width: 100%;
+    height: auto;
 }

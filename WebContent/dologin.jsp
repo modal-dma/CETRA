@@ -9,7 +9,7 @@ String password = request.getParameter("password");
 if(password != null && password.equals(Constants.usersMap.get(username)))
 {
 	request.getSession().setAttribute("username", username);
-	response.sendRedirect("admin.html");
+	response.sendRedirect("admin.jsp");
 }
 else
 {

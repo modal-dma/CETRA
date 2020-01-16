@@ -3,6 +3,7 @@ package com.modal.cetra;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -14,7 +15,7 @@ import java.util.Set;
 public class Dijkstra {
 
 	private static int STEP = 1;
-	private static int THRESHOULD = 0x00F10000;
+	private static int THRESHOULD = 0x00F3e0e0;
 	
 	private static Set<Node> unsettledNodes = new HashSet<>();
 
@@ -29,6 +30,15 @@ public class Dijkstra {
 
     	graphBitmap = Utils.copyImage(graph.getBitmap());
     
+    	int v = graphBitmap.getRGB(350, 567);
+    	
+    	System.out.println("v :" + v);
+    	System.out.println("v :" + new BigInteger("" + v).toString(16));
+    	
+    	System.out.println("v :" + (0x00FFFFFF & v));
+    	System.out.println("v :" + new BigInteger("" + (0x00FFFFFF & v)).toString(16));
+    	
+    	
     	Dijkstra.end = end;
     	
     	resultBitmap = new BufferedImage(graphBitmap.getWidth(), graphBitmap.getHeight(), BufferedImage.TYPE_3BYTE_BGR);    	
@@ -71,7 +81,7 @@ public class Dijkstra {
         if (sourceDistance + edgeWeigh < evaluationNode.distance) 
         {
             evaluationNode.distance = sourceDistance + edgeWeigh;
-            System.out.println(evaluationNode);
+//            System.out.println(evaluationNode);
             resultBitmap.setRGB(evaluationNode.x, evaluationNode.y, evaluationNode.distance);       
             graphBitmap.setRGB(evaluationNode.x, evaluationNode.y, 0);
             LinkedList<Node> shortestPath = new LinkedList<>(sourceNode.shortestPath);
@@ -104,25 +114,25 @@ public class Dijkstra {
 		int y1 = currentNode.y + STEP;
 		
 		Node node;
-		if(y0 >= 0 && (0x00FFFFFF & bitmap.getRGB(currentNode.x, y0)) > THRESHOULD)
+		if(y0 >= 0 && ((0x00FFFFFF & bitmap.getRGB(currentNode.x, y0)) > THRESHOULD))
 		{
 			node = new Node(currentNode.x, y0);						
 			adjNode.put(node, 1);
 		}
 
-		if(y1 < bitmap.getHeight() && (0x00FFFFFF & bitmap.getRGB(currentNode.x, y1)) > THRESHOULD)
+		if(y1 < bitmap.getHeight() && ((0x00FFFFFF & bitmap.getRGB(currentNode.x, y1)) > THRESHOULD))
 		{
 			node = new Node(currentNode.x, y1);			
 			adjNode.put(node, 1);
 		}
 		
-		if(x0 >= 0 && (0x00FFFFFF & bitmap.getRGB(x0, currentNode.y)) > THRESHOULD)
+		if(x0 >= 0 && ((0x00FFFFFF & bitmap.getRGB(x0, currentNode.y)) > THRESHOULD))
 		{
 			node = new Node(x0, currentNode.y);
 			adjNode.put(node, 1);
 		}
 		
-		if(x1 < bitmap.getWidth() && (0x00FFFFFF & bitmap.getRGB(x1, currentNode.y)) > THRESHOULD)
+		if(x1 < bitmap.getWidth() && ((0x00FFFFFF & bitmap.getRGB(x1, currentNode.y)) > THRESHOULD))
 		{
 			node = new Node(x1, currentNode.y);		
 			adjNode.put(node, 1);

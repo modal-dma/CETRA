@@ -8,9 +8,13 @@ import java.awt.image.BufferedImageOp;
 import java.awt.image.ConvolveOp;
 import java.awt.image.Kernel;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class MainTest {
 
@@ -52,11 +56,20 @@ public class MainTest {
 //		    Graphics2D g2d = (Graphics2D) pathBitmap.getGraphics();
 //		    g2d.setBackground(new Color(0, 0, 0, 0));
 		  
+		    JSONArray path = new JSONArray();
+		    
 		    for(Node node : end.shortestPath)
 		    {
 		    	System.out.println(node);	
 		    			    	    
 		    	imageGray.setRGB(node.x, node.y, 0);
+		    	
+		    	JSONObject wp = new JSONObject();
+		    	
+		    	wp.put("x", (double)node.x / (double)imageGray.getWidth());
+		    	wp.put("y", (double)node.y / (double)imageGray.getHeight());
+		    	
+		    	path.put(wp);		    	
 		    }
 		    
 //		    Node destination = Dijkstra.nodeMap.get(new Point(100, 141));		    		   
@@ -64,6 +77,12 @@ public class MainTest {
 		    
 		    ImageIO.write(imageGray, "png", new File("image_path.png"));
 		    ImageIO.write(Dijkstra.resultBitmap, "png", new File("image_result.png"));
+		    
+		    FileWriter fw = new FileWriter("polyline.json");
+		    
+		    fw.write(path.toString(4));
+		    
+		    fw.close();
 		    
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
