@@ -175,7 +175,7 @@
 	System.out.println("min " + min);
 	System.out.println("range " + range);
 		  				
-	Color[] colors = Gradient.GRADIENT_BLUE_TO_RED;
+	Color[] colors = Gradient.GRADIENT_GREEN_YELLOW_ORANGE_RED;
 
 	Graphics2D g2d = (Graphics2D)heatmapImage.getGraphics();
     
@@ -189,6 +189,8 @@
 		double norm = (double)(value - min) / (double)range; // 0 < norm < 1
         int colorIndex = (int) Math.floor(norm * (colors.length - 1));
   					
+		System.out.println("norm " + norm + ", color " + colorIndex);
+		
 		Color color = colors[colorIndex];
 		
 		int rgb = color.getRGB() | 0xFF000000;
