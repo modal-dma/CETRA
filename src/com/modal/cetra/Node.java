@@ -31,6 +31,7 @@ public class Node {
 	@Override 
 	public boolean equals(Object node)
 	{
+		//System.out.println(this.toString() + "==" + node.toString());
 		if(node instanceof Node)
 			return x == ((Node)node).x && y == ((Node)node).y;
 		else

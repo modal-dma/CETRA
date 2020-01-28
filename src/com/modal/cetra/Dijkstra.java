@@ -55,6 +55,7 @@ public class Dijkstra {
         
         while (unsettledNodes.size() != 0) {
             Node currentNode = getLowestDistanceNode(unsettledNodes);
+            
             unsettledNodes.remove(currentNode);
             for (Entry<Node, Integer> adjacencyPair : getAdjacentNodes(graphBitmap, currentNode).entrySet()) {
                 Node adjacentNode = adjacencyPair.getKey();
@@ -64,12 +65,12 @@ public class Dijkstra {
                     calculateMinimumDistance(adjacentNode, edgeWeigh, currentNode);
                     unsettledNodes.add(adjacentNode);
                 }
-                
-                if(currentNode.equals(end))
+                            
+                if(adjacentNode.equals(end))
                 {
                 	System.out.println("end: " + end);
                 	end.shortestPath = adjacentNode.shortestPath;
-                	//return graph;
+                	return graph;
                 }
             }
             	
@@ -84,12 +85,11 @@ public class Dijkstra {
         if (sourceDistance + edgeWeigh < evaluationNode.distance) 
         {
             evaluationNode.distance = sourceDistance + edgeWeigh;
-//            System.out.println(evaluationNode);
             resultBitmap.setRGB(evaluationNode.x, evaluationNode.y, evaluationNode.distance);       
             graphBitmap.setRGB(evaluationNode.x, evaluationNode.y, 0);
             LinkedList<Node> shortestPath = new LinkedList<>(sourceNode.shortestPath);
             shortestPath.add(sourceNode);
-            evaluationNode.shortestPath = shortestPath;                        
+            evaluationNode.shortestPath = shortestPath;       
         }
     }
 
@@ -164,8 +164,8 @@ public class Dijkstra {
 			node = new Node(x1, y1);
 			adjNode.put(node, 1);
 		}
-//		System.out.println(currentNode);
-//		System.out.println(adjNode.toString());
+		
+		//System.out.println(adjNode.toString());
 		
 		return adjNode;
     }

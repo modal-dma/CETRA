@@ -33,13 +33,16 @@ public class PathsCalculator {
 		Node start = new Node((int)(x0 * imageGray.getWidth()), (int)(y0 * imageGray.getHeight()));
 		Node end = new Node((int)(x1 * imageGray.getWidth()), (int)(y1 * imageGray.getHeight()));
 	    
+		System.out.println("start " + start);
+		System.out.println("end " + end);
+		
 	    graphBitmap = Dijkstra.calculateShortestPathFromSource(graphBitmap, start, end);
 	    
 	    JSONArray path = new JSONArray();
 	    
 	    for(Node node : end.shortestPath)
 	    {
-	    	System.out.println(node);	
+	    	//System.out.println(node);	
 	    			    	    
 	    	//imageGray.setRGB(node.x, node.y, 0);
 	    	

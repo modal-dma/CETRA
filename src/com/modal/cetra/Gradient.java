@@ -67,7 +67,7 @@ public class Gradient
     /**
      *Produces a gradient through the rainbow: violet, blue, green, yellow, orange, red
      */
-    public final static Color[] GRADIENT_RAINBOW = createMultiGradient(new Color[]{new Color(181, 32, 255), Color.blue, Color.green, Color.yellow, Color.orange, Color.red}, 500);
+    public final static Color[] GRADIENT_RAINBOW = createMultiGradient(new Color[]{new Color(181, 32, 255), Color.blue, Color.green, Color.yellow, Color.orange, Color.red}, 100);
 
     /**
      *Produces a gradient for hot things (black, red, orange, yellow, white)
@@ -84,6 +84,11 @@ public class Gradient
      */
     public final static Color[] GRADIENT_ROY = createMultiGradient(new Color[]{Color.red, Color.orange, Color.yellow}, 500);
 
+    /**
+     *Produces a gradient through red, orange, yellow
+     */
+    public final static Color[] GRADIENT_ROY_INVERTED = createMultiGradient(new Color[]{Color.yellow, Color.orange, Color.red}, 500);
+    
     /**
      * Creates an array of Color objects for use as a gradient, using a linear 
      * interpolation between the two specified colors.

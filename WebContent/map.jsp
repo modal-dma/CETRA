@@ -79,10 +79,12 @@ JSONArray imagesArray = new JSONArray();
   <link href="css/sb-admin.css" rel="stylesheet">
   
      <link href="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
+	<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/themes/ui-darkness/jquery-ui.css" rel="stylesheet">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.js" type="text/javascript"></script>
 
+	<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
     <script src="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.ui.position.min.js" type="text/javascript"></script>
   
   <script src="./js/jajaxloader.js"></script>
@@ -206,6 +208,21 @@ var imagesArray = [];
     </div>
   </div>
 
+	<div id="dialog" title="Add Item">
+	<form>
+	<label for="type">Tipologia</label><br/>
+	<input type="radio" name="type" value="door" checked>Entrata/Uscita
+	<br/>
+	<input type="radio" name="type" value="sensor">Sensore 	
+	 <br/><br/>
+	<label>Nome:</label>
+	<input id="name" name="name" type="text">
+	<label>Piano:</label>
+	<input id="floor" name="floor" type="text">
+	<input id="submit" type="submit" value="Submit">
+	</form>
+	</div>
+	
   <!-- Bootstrap core JavaScript-->
   <!-- 
   <script src="vendor/jquery/jquery.min.js"></script>
@@ -235,10 +252,33 @@ $(document).ready(function () {
 	}
 	%>	
 		
+	$("#dialog").dialog({
+		autoOpen: false
+	});
+	
+		$("#button").on("click", function() {
+		
+		});
+		
+	
+	var elm;
+	var event;
+	
 	$('.mapimage').click(function (e) { //Default mouse Position 
-		var elm = $(this);
-	    var xPos = e.pageX - elm.offset().left;
-	    var yPos = e.pageY - elm.offset().top;
+		elm = $(this);
+		event = e;
+		
+		e.preventDefault();
+		
+		$("#dialog").dialog("open");		
+	});
+		
+	$("#submit").click(function(e) {
+			
+		e.preventDefault();
+		
+	    var xPos = event.pageX - elm.offset().left;
+	    var yPos = event.pageY - elm.offset().top;
 		var imageFile = elm.attr("name");
 		
 	    console.log(xPos, yPos);
@@ -247,22 +287,35 @@ $(document).ready(function () {
 	    yPos = yPos / elm.height();
 	    
 	    console.log(xPos, yPos);
+	    	    
+	    //var name = prompt("Nome sensore", "");
+	    var name = $("#name").val();
+	    var floor = $("#floor").val();
+	    var type = $('input[name=type]:checked').val();
 	    
-	    var name = prompt("Nome sensore", "");
+	    $("#dialog").dialog("close");
+	    
 	    if(sensorsMap[name] != null)
 	    {
-	    	alert("sensore " + name + " già presente");
-	    	return;
+	    	alert("sensore " + name + " già presente");	    	
 	    }
+	    else
+	    {
+	    	var div = $("<div />")
+	    	if(type == "sensor")
+	        	div.attr({"id": name, "class": 'sensor context-menu-one'});
+	    	else
+	    		div.attr({"id": name, "class": 'door context-menu-one'});
 	    	
-	    var div = $("<div />")
-        div.attr({"id": name, "class": 'sensor context-menu-one'});
-        div.css({"top": e.pageY - 10, "left": e.pageX - 7, "position": "absolute"});
-        div.html(name);
-        $("#content-wrapper").append(div);
-                 
-        sensorsMap[name] = name;       
-        sensorsArray.push({"x": xPos, "y": yPos, "name": name, "image": imageFile});
+	        div.css({"top": event.pageY - 10, "left": event.pageX - 7, "position": "absolute"});
+	        div.html(name);
+	        $("#content-wrapper").append(div);
+	                 
+	        sensorsMap[name] = name;       
+	        sensorsArray.push({"x": xPos, "y": yPos, "name": name, "image": imageFile, "floor": floor, "type": type});
+	    }	    
+	    
+	    
 	});	
 });
 
@@ -292,8 +345,15 @@ function printSensors()
 		
 		sensorsMap[name] = name;       
 		
+		var type = sensor.type;
+		
 		var div = $("<div />")
-        div.attr({"id": name, "class": 'sensor context-menu-one', "index": i});
+		if(type == "sensor")
+        	div.attr({"id": name, "class": 'sensor context-menu-one', "index": i});
+    	else
+    		div.attr({"id": name, "class": 'door context-menu-one', "index": i});
+	
+        //div.attr({"id": name, "class": 'sensor context-menu-one', "index": i});
         div.css({"top": y - 10, "left": x - 7, "position": "absolute"});
         div.html(name);
         $("#content-wrapper").append(div);
