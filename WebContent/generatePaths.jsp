@@ -112,11 +112,13 @@
 		  			if(start.getInt("floor") == end.getInt("floor"))
 		  			{  				  			
 		  				String name = start.getString("name") + end.getString("name");
+		  				String nameReverse = end.getString("name") + start.getString("name");
 		  				
 			  			System.out.println("-----------++++++++-----------");
 			  			System.out.println(name);
 			  			File fileName = new File(dir, "step-" + name + ".json");
-			  			if(!fileName.exists())
+			  			File fileNameReverse = new File(dir, "step-" + nameReverse + ".json");
+			  			if(!fileName.exists() && !fileNameReverse.exists())
 			  			{
 				  			JSONArray path = calculator.generate(start.getDouble("x"), start.getDouble("y"), end.getDouble("x"), end.getDouble("y"));
 				  			  			  						  			
@@ -136,11 +138,14 @@
 		  				if(door1 != null && door2 != null)
 		  				{		  					
 			  				String name = start.getString("name") + door1.getString("name");
+			  				String nameReverse = door1.getString("name") + start.getString("name");
 			  				
 			  				System.out.println("-----------...........-----------");
 				  			System.out.println(name);
+				  			
 				  			File fileName = new File(dir, "step-" + name + ".json");
-				  			if(!fileName.exists())
+				  			File fileNameReverse = new File(dir, "step-" + nameReverse + ".json");
+				  			if(!fileName.exists() && !fileNameReverse.exists())
 				  			{
 					  			JSONArray path = calculator.generate(start.getDouble("x"), start.getDouble("y"), door1.getDouble("x"), door1.getDouble("y"));
 					  			  			  							  			
@@ -151,11 +156,13 @@
 				  			
 				  			
 							name = door2.getString("name") + end.getString("name");
-			  				
+							nameReverse = start.getString("name") + door2.getString("name");
+							
 			  				System.out.println("-----------____________-----------");
 				  			System.out.println(name);
+				  			
 				  			fileName = new File(dir, "step-" + name + ".json");
-				  			if(!fileName.exists())
+				  			if(!fileName.exists() && !fileNameReverse.exists())
 				  			{
 				  				JSONArray path = calculator.generate(door2.getDouble("x"), door2.getDouble("y"), end.getDouble("x"), end.getDouble("y"));
 				  			  			  						  			
@@ -195,8 +202,7 @@
 	    g.dispose();
 	    
 	    heatmapFile = new File(heatmapDir, "heatmap.png");
-	    ImageIO.write(b, "png", heatmapFile);
-  		
+	    ImageIO.write(b, "png", heatmapFile);	    	    
   	}
   	catch(IOException ex)
   	{

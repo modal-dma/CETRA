@@ -70,7 +70,8 @@ public class Dijkstra {
                 {
                 	System.out.println("end: " + end);
                 	end.shortestPath = adjacentNode.shortestPath;
-                	return graph;
+                	end.distance = adjacentNode.distance;
+                	//return graph;
                 }
             }
             	

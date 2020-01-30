@@ -118,8 +118,8 @@ public class HeatmapGenerator {
 		
 		for(JSONObject node : listValues)
 		{  					
-			int x = (int)(node.getDouble("x") * heatmapImage.getWidth());
-			int y = (int)(node.getDouble("y") * heatmapImage.getHeight());
+			int x = (int)Math.floor(node.getDouble("x") * heatmapImage.getWidth());
+			int y = (int)Math.floor(node.getDouble("y") * heatmapImage.getHeight());
 		  	
 			//int value = node.getInt("value");
 				
@@ -134,13 +134,22 @@ public class HeatmapGenerator {
 			
 			//int rgb = color.getRGB() | 0xFF000000;
 		
+			Color colorSemitransparent = new Color(color.getRed(), color.getGreen(), color.getBlue(), 0x20);
 			
-		    g2d.setColor(color);
+			g2d.setColor(colorSemitransparent);
 		    g2d.setStroke(new BasicStroke(1));
-		    g2d.setRenderingHint(
-		            RenderingHints.KEY_ANTIALIASING,
-		            RenderingHints.VALUE_ANTIALIAS_ON);
-		    g2d.fillOval(x, y, 2, 2);
+//		    g2d.setRenderingHint(
+//		            RenderingHints.KEY_ANTIALIASING,
+//		            RenderingHints.VALUE_ANTIALIAS_ON);
+		    g2d.fillRect(x-2, y-2, 8, 8);
+		    
+		    Color color1 = new Color(color.getRed(), color.getGreen(), color.getBlue(), 0x40);
+		    g2d.setColor(color1);
+		    g2d.setStroke(new BasicStroke(2));
+//		    g2d.setRenderingHint(
+//		            RenderingHints.KEY_ANTIALIASING,
+//		            RenderingHints.VALUE_ANTIALIAS_ON);
+		    g2d.fillRect(x, y, 3, 3);
 		}
 		
 		
@@ -151,10 +160,10 @@ public class HeatmapGenerator {
 	{
 //		System.out.println("averageValue " + nodeMap);
 		
-		int x = (int)(node.getDouble("x") * image.getWidth());
-		int y = (int)(node.getDouble("y") * image.getHeight());
+		int x = (int)Math.floor(node.getDouble("x") * image.getWidth());
+		int y = (int)Math.floor(node.getDouble("y") * image.getHeight());
 		
-		int radius = 3;
+		int radius = 10;
 		
 		int count = 0;
 		int sum = 0;
@@ -209,7 +218,7 @@ public class HeatmapGenerator {
 			{
 				JSONObject node = stepJsonArray.getJSONObject(j);
 				
-				String nodeName = (int)(node.getDouble("x") * image.getWidth()) + "," + (int)(node.getDouble("y") * image.getHeight());
+				String nodeName = (int)Math.floor(node.getDouble("x") * image.getWidth()) + "," + (int)Math.floor(node.getDouble("y") * image.getHeight());
 				
 				if(nodeMap.containsKey(nodeName))
 				{
