@@ -181,7 +181,7 @@
   	
   	try
   	{
-  		BufferedImage heatmapImage = HeatmapGenerator.generate(image, sensorsMap, doorsMap, new File(dirPath, "dataset.txt"));  	
+  		BufferedImage heatmapImage = HeatmapGenerator.generate(image, sensorsMap, doorsMap, new File(dirPath, "dataset.txt"), null, null);  	
   	
   	
 	  	File heatmapDir = new File(dirPath, "heatmaps");

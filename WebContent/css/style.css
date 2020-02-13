@@ -33,6 +33,14 @@
     height: auto;
 }
 
+.ball
+{
+	position: absolute;
+	width: 10px;
+	height: 10px;
+	border-radius: 5px;
+}
+
 #button {
 border:1px solid #0c799e;
 width:250px;

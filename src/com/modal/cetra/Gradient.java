@@ -48,6 +48,9 @@ public class Gradient
      * Produces a gradient from blue (low) to red (high)
      */
     public final static Color[] GRADIENT_BLUE_TO_RED = createGradient(Color.BLUE, Color.RED, 500);
+    
+    public final static Color[] GRADIENT_BLUE_TO_RED_50 = createGradient(Color.BLUE, Color.RED, 50);
+    public final static Color[] GRADIENT_BLUE_TO_RED_100 = createGradient(Color.BLUE, Color.RED, 100);
 
     /**
      * Produces a gradient from black (low) to white (high)
@@ -63,12 +66,13 @@ public class Gradient
      *Produces a gradient through green, yellow, orange, red
      */
     public final static Color[] GRADIENT_GREEN_YELLOW_ORANGE_RED = createMultiGradient(new Color[]{Color.green, Color.yellow, Color.orange, Color.red}, 500);
-
+    public final static Color[] GRADIENT_GREEN_YELLOW_ORANGE_RED_50 = createMultiGradient(new Color[]{Color.green, Color.yellow, Color.orange, Color.red}, 50);
     /**
      *Produces a gradient through the rainbow: violet, blue, green, yellow, orange, red
      */
-    public final static Color[] GRADIENT_RAINBOW = createMultiGradient(new Color[]{new Color(181, 32, 255), Color.blue, Color.green, Color.yellow, Color.orange, Color.red}, 100);
-
+    public final static Color[] GRADIENT_RAINBOW = createMultiGradient(new Color[]{new Color(181, 32, 255), Color.blue, Color.green, Color.yellow, Color.orange, Color.red}, 500);
+    public final static Color[] GRADIENT_RAINBOW_100 = createMultiGradient(new Color[]{new Color(181, 32, 255), Color.blue, Color.green, Color.yellow, Color.orange, Color.red}, 100);
+    public final static Color[] GRADIENT_RAINBOW_50 = createMultiGradient(new Color[]{new Color(181, 32, 255), Color.blue, Color.green, Color.yellow, Color.orange, Color.red}, 50);
     /**
      *Produces a gradient for hot things (black, red, orange, yellow, white)
      */
