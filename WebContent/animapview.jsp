@@ -463,6 +463,8 @@ function runNextVisitor()
 		    }
 		}
 		
+		var zIndex =  elem.zIndex;
+		
 		$( elem ).mouseover(function() {
 			  console.log("Handler for .mouseover() called" );
 			  
@@ -482,7 +484,7 @@ function runNextVisitor()
 					 
 					 //console.log("(x, y) (" + x + ", " + y + ")" );
 					 
-					 ctx.strokeStyle = "rgba(110, 110, 110, 0.6)";
+					 ctx.strokeStyle = elem.style.color;//"rgba(110, 110, 110, 0.6)";
 					 
 					 ctx.lineWidth = 1;
 					 
@@ -516,7 +518,7 @@ function runNextVisitor()
 			.mouseout(function() {
 				console.log("Handler for .mouseout() called" );
 				
-				$(elem).css('z-index', 1);
+				$(elem).css('z-index', zIndex);
 				
 				clearCanvas();
 				if(id1 != 0)
