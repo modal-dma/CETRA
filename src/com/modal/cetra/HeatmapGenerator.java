@@ -27,7 +27,7 @@ public class HeatmapGenerator {
 
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy HH:mm");
 
-	public static BufferedImage generate(BufferedImage image, HashMap<String, JSONObject> sensorsMap, HashMap<Integer, JSONObject> doorsMap, File datasetFile, Date from, Date to) throws IOException
+	public static BufferedImage generate(BufferedImage image, HashMap<String, JSONObject> sensorsMap, HashMap<Integer, JSONObject> doorsMap, File datasetFile, Date from, Date to, List<String> filters) throws IOException
 	{
 		BufferedImage heatmapImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
 	  	
@@ -49,35 +49,50 @@ public class HeatmapGenerator {
 	  		
 	  		boolean addPath = true;
 	  		
-	  		if(from != null)
+	  		if(filters != null)
 	  		{
-	  			Date date;
-				try {
-					date = sdf.parse(datestr);
-					System.out.println("date: " + datestr);
-					System.out.println("date: " + date.toString());
-					System.out.println("from: " + from.toString());
-					
-					if(date.before(from))
-					{
-		  				addPath = false;
-		  				System.out.println("before: removed from path");
-					}
-					else
-					{
-						if(to != null)
+	  			for(String sensor : filters)
+	  			{
+	  				if(!path.contains(sensor))
+	  				{
+	  					addPath = false;
+	  					break;
+	  				}	  				
+	  			}
+	  		}
+	  		
+	  		if(addPath)
+	  		{
+		  		if(from != null)
+		  		{
+		  			Date date;
+					try {
+						date = sdf.parse(datestr);
+						System.out.println("date: " + datestr);
+						System.out.println("date: " + date.toString());
+						System.out.println("from: " + from.toString());
+						
+						if(date.before(from))
 						{
-							if(date.after(to))
+			  				addPath = false;
+			  				System.out.println("before: removed from path");
+						}
+						else
+						{
+							if(to != null)
 							{
-								addPath = false;
-								System.out.println("after: removed from path");
-							}
-						}							
-					}					
-				} catch (ParseException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}	  			
+								if(date.after(to))
+								{
+									addPath = false;
+									System.out.println("after: removed from path");
+								}
+							}							
+						}					
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}	  			
+		  		}
 	  		}
 	  		
 	  		if(addPath)
@@ -203,7 +218,7 @@ public class HeatmapGenerator {
 		return heatmapImage;
 	}
 	
-	public static List<List<Point>> generateVisitorPaths(HashMap<String, JSONObject> sensorsMap, HashMap<Integer, JSONObject> doorsMap, File datasetFile, Date from, Date to) throws IOException
+	public static List<List<Point>> generateVisitorPaths(HashMap<String, JSONObject> sensorsMap, HashMap<Integer, JSONObject> doorsMap, File datasetFile, Date from, Date to, List<String> filters) throws IOException
 	{	  	  	
 	  	FileReader fr = new FileReader(datasetFile);
 	  	BufferedReader br = new BufferedReader(fr);
@@ -217,49 +232,99 @@ public class HeatmapGenerator {
 	  		String fields[] = line.split(",");
 	  		
 	  		String path = fields[0];
-	  		String datestr = fields[2];
-	  		
 	  		boolean addPath = true;
 	  		
-	  		ArrayList<Point> visitorPath = new ArrayList<>();
-	  		
-  			pathCount++;
-	  		for(int i = 0; i < path.length() - 1; i++)
-	  		{	  				  			
-	  			String start = path.substring(i, i + 1);
-	  			String end = path.substring(i + 1, i + 2);
-	  			
-	  			JSONObject startNode = sensorsMap.get(start);
-	  			JSONObject endNode = sensorsMap.get(end);
-		  			
-	  			if(startNode != null && endNode != null)
+	  		if(filters != null)
+	  		{
+	  			for(String sensor : filters)
 	  			{
-		  			if(startNode.getInt("floor") == endNode.getInt("floor"))
-		  			{	  			
-			  			String step = path.substring(i, i + 2);
-						  			
-			  			System.out.println("step " + step);
-			  			
-			  			addNodeToPath(step, datasetFile, visitorPath); 
-		  			}
-		  			else
-		  			{
-		  				JSONObject door1 = doorsMap.get(startNode.getInt("floor"));	  				
-		  				JSONObject door2 = doorsMap.get(endNode.getInt("floor"));
-		  				
-		  				String step1 = start + door1.getString("name");
-		  				String step2 = door2.getString("name") + end;
-			  			
-			  			System.out.println("step " + step1);
-			  			System.out.println("step " + step2);
-			  			
-			  			addNodeToPath(step1, datasetFile, visitorPath); 
-			  			addNodeToPath(step2, datasetFile, visitorPath); 
-		  			}
-	  			}		  		
+	  				if(!path.contains(sensor))
+	  				{
+	  					addPath = false;
+	  					break;
+	  				}	  				
+	  			}
 	  		}
 	  		
-	  		visitorPathArray.add(visitorPath);	  		
+	  		String datestr = fields[2];
+	  		
+	  		if(addPath)
+	  		{	  		
+		  		if(from != null)
+		  		{
+		  			Date date;
+					try 
+					{
+						date = sdf.parse(datestr);
+						System.out.println("date: " + datestr);
+						System.out.println("date: " + date.toString());
+						System.out.println("from: " + from.toString());
+						
+						if(date.before(from))
+						{
+			  				addPath = false;
+			  				System.out.println("before: removed from path");
+						}
+						else
+						{
+							if(to != null)
+							{
+								if(date.after(to))
+								{
+									addPath = false;
+									System.out.println("after: removed from path");
+								}
+							}							
+						}					
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}	  			
+		  		}
+	  		}
+	  		
+	  		if(addPath)
+	  		{
+		  		ArrayList<Point> visitorPath = new ArrayList<>();
+		  		
+	  			pathCount++;
+		  		for(int i = 0; i < path.length() - 1; i++)
+		  		{	  				  			
+		  			String start = path.substring(i, i + 1);
+		  			String end = path.substring(i + 1, i + 2);
+		  			
+		  			JSONObject startNode = sensorsMap.get(start);
+		  			JSONObject endNode = sensorsMap.get(end);
+			  			
+		  			if(startNode != null && endNode != null)
+		  			{
+			  			if(startNode.getInt("floor") == endNode.getInt("floor"))
+			  			{	  			
+				  			String step = path.substring(i, i + 2);
+							  			
+				  			//System.out.println("step " + step);
+				  			
+				  			addNodeToPath(step, datasetFile, visitorPath); 
+			  			}
+			  			else
+			  			{
+			  				JSONObject door1 = doorsMap.get(startNode.getInt("floor"));	  				
+			  				JSONObject door2 = doorsMap.get(endNode.getInt("floor"));
+			  				
+			  				String step1 = start + door1.getString("name");
+			  				String step2 = door2.getString("name") + end;
+				  			
+				  			//System.out.println("step " + step1);
+				  			//System.out.println("step " + step2);
+				  			
+				  			addNodeToPath(step1, datasetFile, visitorPath); 
+				  			addNodeToPath(step2, datasetFile, visitorPath); 
+			  			}
+		  			}		  		
+		  		}
+		  		
+		  		visitorPathArray.add(visitorPath);
+	  		}
 	  	}
 	  	
 	  	br.close();
@@ -322,7 +387,7 @@ public class HeatmapGenerator {
 			
 		if(jsonFile.exists())
 		{
-			System.out.println("file exists " + step);
+			//System.out.println("file exists " + step);
 			
 			FileReader fr1 = new FileReader(jsonFile);
 			JSONTokener tokenizer = new JSONTokener(fr1);
@@ -366,8 +431,8 @@ public class HeatmapGenerator {
 			
 		if(jsonFile.exists())
 		{
-			System.out.println("file exists " + step);
-			System.out.println("reversed " + reverseNeeded);
+//			System.out.println("file exists " + step);
+//			System.out.println("reversed " + reverseNeeded);
 			
 			FileReader fr1 = new FileReader(jsonFile);
 			JSONTokener tokenizer = new JSONTokener(fr1);

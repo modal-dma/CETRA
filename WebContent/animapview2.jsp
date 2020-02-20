@@ -143,9 +143,9 @@ var imagesArray = [];
 		List<List<Point>> visitorsPathArray;
 		
 		if(from != null)
-			visitorsPathArray = HeatmapGenerator.generateVisitorPaths(sensorsMap, doorsMap, new File(dirPath, "dataset.txt"), sdf.parse(from), sdf.parse(to), null);
+			visitorsPathArray = HeatmapGenerator.generateVisitorPaths(sensorsMap, doorsMap, new File(dirPath, "dataset.txt"), sdf.parse(from), sdf.parse(to));
 		else
-			visitorsPathArray = HeatmapGenerator.generateVisitorPaths(sensorsMap, doorsMap, new File(dirPath, "dataset.txt"), null, null, null);
+			visitorsPathArray = HeatmapGenerator.generateVisitorPaths(sensorsMap, doorsMap, new File(dirPath, "dataset.txt"), null, null);
 		
 		JSONArray visitorsPaths = new JSONArray();
 		
@@ -193,12 +193,41 @@ var colorsGradient = <%=colorArray.toString()%>
 
 <body id="page-top">
 
+  <nav class="navbar navbar-expand navbar-dark bg-dark static-top">
+
+    <a class="navbar-brand mr-1" href="index.html">CETRA</a>
+
+    <button class="btn btn-link btn-sm text-white order-1 order-sm-0" id="sidebarToggle" href="#">
+      <i class="fas fa-bars"></i>
+    </button>
+
+   <jsp:include page="navbaradmin.jsp"/>
+
+  </nav>
 
   <div id="wrapper">
 
+    <!-- Sidebar -->
+    <jsp:include page="sidebaradmin.jsp"/>
+    
+    <div id="content-wrapper">
+
       <div class="container-fluid">
 
-        <div id="map-container" style="text-align: center;">
+        <!-- Breadcrumbs-->
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a href="index.html">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item active"><%=mapName %></li>
+        </ol>
+
+        <!-- Page Content -->
+        <h1>Editing mappa</h1>
+        <hr>
+        <p><%=mapName %></p>
+        
+        <div id="map-container">
         
         <%
         for(String imageFile : imageFiles)
@@ -220,10 +249,49 @@ var colorsGradient = <%=colorArray.toString()%>
       </div>
       <!-- /.container-fluid -->
 
+      <!-- Sticky Footer -->
+      <footer class="sticky-footer">
+        <div class="container my-auto">
+          <div class="copyright text-center my-auto">
+            <span>Copyright © Modal 2019-2020</span>
+          </div>
+        </div>
+      </footer>
+
+    </div>
+    <!-- /.content-wrapper -->
 
   </div>
   <!-- /#wrapper -->
 
+  <!-- Scroll to Top Button-->
+  <a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+  </a>
+
+  <!-- Logout Modal-->
+  <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">Ã—</span>
+          </button>
+        </div>
+        <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+          <a class="btn btn-primary" href="login.html">Logout</a>
+        </div>
+      </div>
+    </div>
+  </div>
+	
+  <!-- Bootstrap core JavaScript-->
+  <!-- 
+  <script src="vendor/jquery/jquery.min.js"></script>
+   -->
   <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
   <!-- Core plugin JavaScript-->
@@ -244,49 +312,17 @@ var ctx;
 var canvasData;
 
 $(document).ready(function () {
-	
-	
+
 	<% if(sensorArray != null)
 	{
 	%>
 		sensorsArray = <%=sensorArray.toString()%>;
-
-		var sensor = sensorsArray[0];
-		
-		var imageFile = sensor.image;
-		
-		var mapImage = $( "img[name='" + imageFile + "']" );
-		
-		var w = mapImage.width();
-		var h = mapImage.height();
-		var ratio = w / h;
-		
-		console.log("w " + w);
-		console.log("h " + h);
-		console.log("r " + ratio);
-		
-		var sh = $(window).height();
-		var sw = $(window).width();
-
-		console.log("sw " + sw);
-		console.log("sh " + sh);
-
-		w = sh * ratio; 
-		h = sh;
-		
-		console.log("w " + w);
-		console.log("h " + h);
-
-		mapImage.width(w + "px");
-		mapImage.height(h + "px");
-		
+	
 		printSensors();
-		
 		<%
 	}
 	%>	
 		
-	
 	runVisitors();	    	  
 });
 
@@ -329,7 +365,7 @@ function printSensors()
         //div.attr({"id": name, "class": 'sensor context-menu-one', "index": i});
         div.css({"top": y - 10, "left": x - 7, "position": "absolute"});
         div.html(name);
-        $("#map-container").append(div);
+        $("#content-wrapper").append(div);
 		
 	}	
 }
@@ -418,8 +454,10 @@ function runNextVisitor()
 		
       	elem.style.top = y + 'px';
       	elem.style.left = x + 'px';
-      		
-		document.body.appendChild(elem);      
+      	
+		//var parent = document.body("map-container");
+		
+			document.body.appendChild(elem);      
 				
 		var n = parseInt(Math.random() * 100) + 30;
 		//console.log("n " + n);
@@ -480,9 +518,9 @@ function runNextVisitor()
 			    	 var x = Math.floor(point.x * w);// + mapImage.offset().left;
 					 var y = Math.floor(point.y * h);// + mapImage.offset().top;
 					 
-					 //console.log("(x, y) (" + x + ", " + y + ")" );
+					 console.log("(x, y) (" + x + ", " + y + ")" );
 					 
-					 ctx.strokeStyle = "rgba(110, 110, 110, 0.6)";
+					 ctx.strokeStyle = "rgba(150, 150, 150, 0.6)";
 					 
 					 ctx.lineWidth = 1;
 					 
@@ -508,7 +546,7 @@ function runNextVisitor()
 				  }
 				  
 				  //updateCanvas();
-			  }, 1000 / visitorPath.length );
+			  }, 3000 / visitorPath.length );
 			  
 			  	
 			  

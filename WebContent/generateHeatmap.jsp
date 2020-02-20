@@ -103,7 +103,7 @@
   	
   	try
   	{
-  		BufferedImage heatmapImage = HeatmapGenerator.generate(image, sensorsMap, doorsMap, new File(dirPath, "dataset.txt"), sdf.parse(from), sdf.parse(to));  	
+  		BufferedImage heatmapImage = HeatmapGenerator.generate(image, sensorsMap, doorsMap, new File(dirPath, "dataset.txt"), sdf.parse(from), sdf.parse(to), null);  	
   	
 	  	heatmapFile.mkdirs();
 	  	
