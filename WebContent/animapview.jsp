@@ -1,4 +1,6 @@
 
+<%@page import="com.modal.cetra.HeatmapGenerator.VisitorPath"%>
+<%@page import="java.util.ArrayList"%>
 <%@page import="java.awt.Color"%>
 <%@page import="com.modal.cetra.Gradient"%>
 <%@page import="com.modal.cetra.HeatmapGenerator.Point"%>
@@ -22,6 +24,8 @@
 	String mapName = request.getParameter("name");
 	String from = request.getParameter("from");
 	String to = request.getParameter("to");
+	String filter1 = request.getParameter("filter1");
+	String filter2 = request.getParameter("filter2");
 	
 	String tempDir = System.getProperty("java.io.tmpdir");
 	String dirPath = context.getRealPath("");
@@ -140,30 +144,46 @@ var imagesArray = [];
 	
 	try
 	{
-		List<List<Point>> visitorsPathArray;
+		List<VisitorPath> visitorsPathArray;
+		
+		ArrayList<String> filters = null;
+		if(filter1 != null)
+		{
+			filters = new ArrayList<>();
+			filters.add(filter1);
+			
+			if(filter2 != null)
+				filters.add(filter2);
+		}
 		
 		if(from != null)
-			visitorsPathArray = HeatmapGenerator.generateVisitorPaths(sensorsMap, doorsMap, new File(dirPath, "dataset.txt"), sdf.parse(from), sdf.parse(to), null);
+			visitorsPathArray = HeatmapGenerator.generateVisitorPaths(sensorsMap, doorsMap, new File(dirPath, "dataset.txt"), sdf.parse(from), sdf.parse(to), filters);
 		else
-			visitorsPathArray = HeatmapGenerator.generateVisitorPaths(sensorsMap, doorsMap, new File(dirPath, "dataset.txt"), null, null, null);
+			visitorsPathArray = HeatmapGenerator.generateVisitorPaths(sensorsMap, doorsMap, new File(dirPath, "dataset.txt"), null, null, filters);
 		
 		JSONArray visitorsPaths = new JSONArray();
 		
-		for(List<Point> points : visitorsPathArray)
+		for(VisitorPath vpath : visitorsPathArray)
 		{
 			JSONArray visitorPath = new JSONArray();
 			
-			for(Point p : points)
+			for(Point p : vpath.pathArray)
 			{
 				JSONObject point = new JSONObject();
 				point.put("x", p.x);
 				point.put("y", p.y);
-				
+					
 				visitorPath.put(point);
 			}
 			
-			visitorsPaths.put(visitorPath);
+			JSONObject visitor = new JSONObject();
+			
+			visitor.put("points", visitorPath);
+			visitor.put("path", vpath.path);
+			
+			visitorsPaths.put(visitor);			
 		}		
+		
 		
 		%>
 var visitorsPaths = <%=visitorsPaths.toString()%>
@@ -223,6 +243,10 @@ var colorsGradient = <%=colorArray.toString()%>
 
   </div>
   <!-- /#wrapper -->
+
+<div class="popup">
+  <span class="popuptext" id="myPopup">&nbsp;</span>
+</div>
 
   <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
@@ -407,8 +431,9 @@ function runNextVisitor()
 		//elem.className = "ball fas fa-walking";
 		elem.className = "ball fas fa-user-circle";
 		elem.style.color = colorsGradient[visitorsIndex % MAX_RUNNING_VISITORS];
+		elem.setAttribute("path", visitorPath.path);
 		
-		var point = visitorPath[0];
+		var point = visitorPath.points[0];
     	
     	var x = Math.floor(point.x * w) + mapImage.offset().left;
 		var y = Math.floor(point.y * h) + mapImage.offset().top;
@@ -436,7 +461,7 @@ function runNextVisitor()
 		{		
 			//console.log("frame " + visitorIndex);
 			
-		    if (index >= visitorPath.length) 
+		    if (index >= visitorPath.points.length) 
 		    {
 		    	//console.log("index >= visitorPath.length");
 		    	
@@ -448,7 +473,7 @@ function runNextVisitor()
 		    {
 		    	//console.log("index < visitorPath.length");
 		    	
-		    	var point = visitorPath[index];
+		    	var point = visitorPath.points[index];
 		    			    		    	
 		    	var x = Math.floor(point.x * w) + mapImage.offset().left;
 				var y = Math.floor(point.y * h) + mapImage.offset().top;
@@ -465,19 +490,26 @@ function runNextVisitor()
 		
 		var zIndex =  elem.zIndex;
 		
-		$( elem ).mouseover(function() {
+		$( elem ).mouseover(function(e) {
 			  console.log("Handler for .mouseover() called" );
 			  
 			  clearInterval(id);
+			  
+			  $('.popuptext').text(visitorPath.path);
+			  var popup = document.getElementById("myPopup");
+			  $(".popup").css({left: e.pageX});
+			  $(".popup").css({top: e.pageY});
+			  
+			  popup.classList.toggle("show");
 			  
 			  $(elem).css('z-index', 3000);
 			  
 			  var i = 0;
 			  id1 = setInterval(function() 
 			  {
-				  if(i < visitorPath.length)					  
+				  if(i < visitorPath.points.length)					  
 				  {
-				 	 var point = visitorPath[i];
+				 	 var point = visitorPath.points[i];
 				 	 
 			    	 var x = Math.floor(point.x * w);// + mapImage.offset().left;
 					 var y = Math.floor(point.y * h);// + mapImage.offset().top;
@@ -510,7 +542,7 @@ function runNextVisitor()
 				  }
 				  
 				  //updateCanvas();
-			  }, 1000 / visitorPath.length );
+			  }, 1000 / visitorPath.points.length );
 			  
 			  	
 			  
@@ -520,6 +552,9 @@ function runNextVisitor()
 				
 				$(elem).css('z-index', zIndex);
 				
+				var popup = document.getElementById("myPopup");
+				popup.classList.toggle("show");
+				  
 				clearCanvas();
 				if(id1 != 0)
 					clearInterval(id1);

@@ -115,16 +115,20 @@
 		  				String nameReverse = end.getString("name") + start.getString("name");
 		  				
 			  			System.out.println("-----------++++++++-----------");
-			  			System.out.println(name);
 			  			File fileName = new File(dir, "step-" + name + ".json");
 			  			File fileNameReverse = new File(dir, "step-" + nameReverse + ".json");
 			  			if(!fileName.exists() && !fileNameReverse.exists())
 			  			{
+			  				System.out.println("generate " + name);
 				  			JSONArray path = calculator.generate(start.getDouble("x"), start.getDouble("y"), end.getDouble("x"), end.getDouble("y"));
 				  			  			  						  			
 				  			FileWriter fw = new FileWriter(fileName);  	
 				  			fw.write(path.toString(4));
 				  			fw.close();
+			  			}
+			  			else
+			  			{
+			  				System.out.println("exists " + name);
 			  			}
 		  			}
 		  			else
@@ -141,17 +145,21 @@
 			  				String nameReverse = door1.getString("name") + start.getString("name");
 			  				
 			  				System.out.println("-----------...........-----------");
-				  			System.out.println(name);
 				  			
 				  			File fileName = new File(dir, "step-" + name + ".json");
 				  			File fileNameReverse = new File(dir, "step-" + nameReverse + ".json");
 				  			if(!fileName.exists() && !fileNameReverse.exists())
 				  			{
+				  				System.out.println("generate " + name);
 					  			JSONArray path = calculator.generate(start.getDouble("x"), start.getDouble("y"), door1.getDouble("x"), door1.getDouble("y"));
 					  			  			  							  			
 					  			FileWriter fw = new FileWriter(fileName);  	
 					  			fw.write(path.toString(4));
 					  			fw.close();
+				  			}
+				  			else
+				  			{
+				  				System.out.println("exists " + name);
 				  			}
 				  			
 				  			
@@ -159,16 +167,22 @@
 							nameReverse = start.getString("name") + door2.getString("name");
 							
 			  				System.out.println("-----------____________-----------");
-				  			System.out.println(name);
+				  			
 				  			
 				  			fileName = new File(dir, "step-" + name + ".json");
+				  			fileNameReverse = new File(dir, "step-" + nameReverse + ".json");
 				  			if(!fileName.exists() && !fileNameReverse.exists())
 				  			{
+				  				System.out.println("generate " + name);
 				  				JSONArray path = calculator.generate(door2.getDouble("x"), door2.getDouble("y"), end.getDouble("x"), end.getDouble("y"));
 				  			  			  						  			
 				  				FileWriter fw = new FileWriter(fileName);  	
 					  			fw.write(path.toString(4));
 					  			fw.close();
+				  			}
+				  			else
+				  			{
+				  				System.out.println("exists " + name);
 				  			}
 		  				}
 		  			}
@@ -181,7 +195,7 @@
   	
   	try
   	{
-  		BufferedImage heatmapImage = HeatmapGenerator.generate(image, sensorsMap, doorsMap, new File(dirPath, "dataset.txt"), null, null);  	
+  		BufferedImage heatmapImage = HeatmapGenerator.generate(image, sensorsMap, doorsMap, new File(dirPath, "dataset.txt"), null, null, null);  	
   	
   	
 	  	File heatmapDir = new File(dirPath, "heatmaps");

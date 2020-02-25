@@ -218,13 +218,13 @@ public class HeatmapGenerator {
 		return heatmapImage;
 	}
 	
-	public static List<List<Point>> generateVisitorPaths(HashMap<String, JSONObject> sensorsMap, HashMap<Integer, JSONObject> doorsMap, File datasetFile, Date from, Date to, List<String> filters) throws IOException
+	public static List<VisitorPath> generateVisitorPaths(HashMap<String, JSONObject> sensorsMap, HashMap<Integer, JSONObject> doorsMap, File datasetFile, Date from, Date to, List<String> filters) throws IOException
 	{	  	  	
 	  	FileReader fr = new FileReader(datasetFile);
 	  	BufferedReader br = new BufferedReader(fr);
 	  	String line = "";
 	  	
-	  	ArrayList<List<Point>> visitorPathArray = new ArrayList<>();
+	  	ArrayList<VisitorPath> visitorPathArray = new ArrayList<>();
 	  	
 	  	int pathCount = 0;
 	  	while((line = br.readLine()) != null)
@@ -241,6 +241,7 @@ public class HeatmapGenerator {
 	  				if(!path.contains(sensor))
 	  				{
 	  					addPath = false;
+//	  					System.out.println("filtered0 " + path);
 	  					break;
 	  				}	  				
 	  			}
@@ -285,7 +286,10 @@ public class HeatmapGenerator {
 	  		
 	  		if(addPath)
 	  		{
-		  		ArrayList<Point> visitorPath = new ArrayList<>();
+	  			VisitorPath visitorPath = new VisitorPath();
+	  			
+		  		visitorPath.pathArray = new ArrayList<>();
+		  		visitorPath.path = path;
 		  		
 	  			pathCount++;
 		  		for(int i = 0; i < path.length() - 1; i++)
@@ -302,9 +306,9 @@ public class HeatmapGenerator {
 			  			{	  			
 				  			String step = path.substring(i, i + 2);
 							  			
-				  			//System.out.println("step " + step);
+				  			System.out.println("step " + step);
 				  			
-				  			addNodeToPath(step, datasetFile, visitorPath); 
+				  			addNodeToPath(step, datasetFile, visitorPath.pathArray); 
 			  			}
 			  			else
 			  			{
@@ -314,17 +318,23 @@ public class HeatmapGenerator {
 			  				String step1 = start + door1.getString("name");
 			  				String step2 = door2.getString("name") + end;
 				  			
-				  			//System.out.println("step " + step1);
-				  			//System.out.println("step " + step2);
+				  			System.out.println("step " + step1);
+				  			System.out.println("step " + step2);
 				  			
-				  			addNodeToPath(step1, datasetFile, visitorPath); 
-				  			addNodeToPath(step2, datasetFile, visitorPath); 
+				  			addNodeToPath(step1, datasetFile, visitorPath.pathArray); 
+				  			addNodeToPath(step2, datasetFile, visitorPath.pathArray); 
 			  			}
 		  			}		  		
 		  		}
 		  		
+		  		System.out.println("added " + path);
 		  		visitorPathArray.add(visitorPath);
 	  		}
+	  		else
+	  		{
+//	  			System.out.println("filtered " + path);
+	  		}
+	  		
 	  	}
 	  	
 	  	br.close();
@@ -476,5 +486,11 @@ public class HeatmapGenerator {
 			this.x = x;
 			this.y = y;
 		}
+	}
+	
+	public static class VisitorPath
+	{
+		public ArrayList<Point> pathArray;
+		public String path;
 	}
 }
