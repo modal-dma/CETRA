@@ -553,7 +553,7 @@ function runNextVisitor()
 				$(elem).css('z-index', zIndex);
 				
 				var popup = document.getElementById("myPopup");
-				popup.classList.toggle("show");
+				popup.classList.remove("show");
 				  
 				clearCanvas();
 				if(id1 != 0)

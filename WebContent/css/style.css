@@ -127,6 +127,7 @@ padding:2em
   position: absolute;
   display: inline-block;
   cursor: pointer;
+  visibility: hidden;
 }
 
 /* The actual popup (appears on top) */
