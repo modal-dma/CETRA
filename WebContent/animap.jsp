@@ -1,4 +1,10 @@
 
+<%@page import="java.io.FileWriter"%>
+<%@page import="java.io.FileOutputStream"%>
+<%@page import="java.io.FileInputStream"%>
+<%@page import="org.json.JSONTokener"%>
+<%@page import="com.modal.cetra.HeatmapGenerator.VisitorPath"%>
+<%@page import="java.util.ArrayList"%>
 <%@page import="java.awt.Color"%>
 <%@page import="com.modal.cetra.Gradient"%>
 <%@page import="com.modal.cetra.HeatmapGenerator.Point"%>
@@ -22,6 +28,8 @@
 	String mapName = request.getParameter("name");
 	String from = request.getParameter("from");
 	String to = request.getParameter("to");
+	String filter1 = request.getParameter("filter1");
+	String filter2 = request.getParameter("filter2");
 	
 	String tempDir = System.getProperty("java.io.tmpdir");
 	String dirPath = context.getRealPath("");
@@ -39,6 +47,8 @@
 			return file.endsWith("jpg") || file.endsWith("png");
 		}
 	});
+	
+	String visitorsPathsFilename = "paths_" + mapName + "_" + (from != null ? from.replace("/", "_") : "") + (to != null ? to.replace("/", "_") : "") + (filter1 != null ? filter1 : "") + (filter2 != null ? filter2 : "") + ".json";
 	
 	System.out.println("files " + imageFiles);
 	
@@ -136,44 +146,86 @@
 
 var imagesArray = [];
 <%
-	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy");
 	
-	try
+	JSONArray visitorsPaths = new JSONArray();
+
+	File fileVisitorsPaths = new File(dirPath, visitorsPathsFilename);
+	if(fileVisitorsPaths.exists())
 	{
-		List<List<Point>> visitorsPathArray;
+		System.out.println("visitors paths exists " + visitorsPathsFilename);
 		
-		if(from != null)
-			visitorsPathArray = HeatmapGenerator.generateVisitorPaths(sensorsMap, doorsMap, new File(dirPath, "dataset.txt"), sdf.parse(from), sdf.parse(to));
-		else
-			visitorsPathArray = HeatmapGenerator.generateVisitorPaths(sensorsMap, doorsMap, new File(dirPath, "dataset.txt"), null, null);
+		FileInputStream fins = new FileInputStream(fileVisitorsPaths);
+		visitorsPaths = new JSONArray(new JSONTokener(fins));
+		fins.close();				
+	}
+	else
+	{
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy");
 		
-		JSONArray visitorsPaths = new JSONArray();
-		
-		for(List<Point> points : visitorsPathArray)
+		try
 		{
-			JSONArray visitorPath = new JSONArray();
 			
-			for(Point p : points)
+			ArrayList<String> filters = null;
+			if(filter1 != null)
 			{
-				JSONObject point = new JSONObject();
-				point.put("x", p.x);
-				point.put("y", p.y);
+				filters = new ArrayList<>();
+				filters.add(filter1);
 				
-				visitorPath.put(point);
+				if(filter2 != null)
+					filters.add(filter2);
 			}
 			
-			visitorsPaths.put(visitorPath);
-		}		
-		
-		%>
-var visitorsPaths = <%=visitorsPaths.toString()%>
-		<%
+			
+			
+			if(from != null)
+				visitorsPaths = HeatmapGenerator.generateVisitorPathsJSON(sensorsMap, doorsMap, new File(dirPath, "dataset.txt"), sdf.parse(from), sdf.parse(to), filters);
+			else
+				visitorsPaths = HeatmapGenerator.generateVisitorPathsJSON(sensorsMap, doorsMap, new File(dirPath, "dataset.txt"), null, null, filters);
+			
+			
+			FileWriter fouts = new FileWriter(fileVisitorsPaths);			
+			fouts.write(visitorsPaths.toString(4));			
+			fouts.close();
+			
+			System.out.println("visitors paths saved " + fileVisitorsPaths);
+			/*
+			
+			List<VisitorPath> visitorsPathArray;
+			
+			JSONArray visitorsPaths = new JSONArray();
+			
+			for(VisitorPath vpath : visitorsPathArray)
+			{
+				JSONArray visitorPath = new JSONArray();
+				
+				for(Point p : vpath.pathArray)
+				{
+					JSONObject point = new JSONObject();
+					point.put("x", p.x);
+					point.put("y", p.y);
+						
+					visitorPath.put(point);
+				}
+				
+				JSONObject visitor = new JSONObject();
+				
+				visitor.put("points", visitorPath);
+				visitor.put("path", vpath.path);
+				
+				visitorsPaths.put(visitor);			
+			}		
+			*/
 
+		}
+		catch(IOException ex)
+		{
+			ex.printStackTrace();
+		}				
 	}
-	catch(IOException ex)
-	{
-		ex.printStackTrace();
-	}
+	
+	%>
+	var visitorsPaths = <%=visitorsPaths.toString()%>;
+	<%
 	
 //Color colors[] = Gradient.GRADIENT_GREEN_YELLOW_ORANGE_RED_50;
 Color colors[] = Gradient.GRADIENT_RAINBOW_100;
@@ -186,48 +238,19 @@ for(Color color : colors)
 }
 
 %>
-var colorsGradient = <%=colorArray.toString()%>
+var colorsGradient = <%=colorArray.toString()%>;
 
 </script>
 </head>
 
 <body id="page-top">
 
-  <nav class="navbar navbar-expand navbar-dark bg-dark static-top">
-
-    <a class="navbar-brand mr-1" href="index.html">CETRA</a>
-
-    <button class="btn btn-link btn-sm text-white order-1 order-sm-0" id="sidebarToggle" href="#">
-      <i class="fas fa-bars"></i>
-    </button>
-
-   <jsp:include page="navbaradmin.jsp"/>
-
-  </nav>
 
   <div id="wrapper">
 
-    <!-- Sidebar -->
-    <jsp:include page="sidebaradmin.jsp"/>
-    
-    <div id="content-wrapper">
-
       <div class="container-fluid">
 
-        <!-- Breadcrumbs-->
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item">
-            <a href="index.html">Dashboard</a>
-          </li>
-          <li class="breadcrumb-item active"><%=mapName %></li>
-        </ol>
-
-        <!-- Page Content -->
-        <h1>Editing mappa</h1>
-        <hr>
-        <p><%=mapName %></p>
-        
-        <div id="map-container">
+        <div id="map-container" style="text-align: center;">
         
         <%
         for(String imageFile : imageFiles)
@@ -249,49 +272,14 @@ var colorsGradient = <%=colorArray.toString()%>
       </div>
       <!-- /.container-fluid -->
 
-      <!-- Sticky Footer -->
-      <footer class="sticky-footer">
-        <div class="container my-auto">
-          <div class="copyright text-center my-auto">
-            <span>Copyright © Modal 2019-2020</span>
-          </div>
-        </div>
-      </footer>
-
-    </div>
-    <!-- /.content-wrapper -->
 
   </div>
   <!-- /#wrapper -->
 
-  <!-- Scroll to Top Button-->
-  <a class="scroll-to-top rounded" href="#page-top">
-    <i class="fas fa-angle-up"></i>
-  </a>
+<div class="popup">
+  <span class="popuptext" id="myPopup">&nbsp;</span>
+</div>
 
-  <!-- Logout Modal-->
-  <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">Ã—</span>
-          </button>
-        </div>
-        <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-          <a class="btn btn-primary" href="login.html">Logout</a>
-        </div>
-      </div>
-    </div>
-  </div>
-	
-  <!-- Bootstrap core JavaScript-->
-  <!-- 
-  <script src="vendor/jquery/jquery.min.js"></script>
-   -->
   <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
   <!-- Core plugin JavaScript-->
@@ -312,17 +300,49 @@ var ctx;
 var canvasData;
 
 $(document).ready(function () {
-
+	
+	
 	<% if(sensorArray != null)
 	{
 	%>
 		sensorsArray = <%=sensorArray.toString()%>;
-	
+
+		var sensor = sensorsArray[0];
+		
+		var imageFile = sensor.image;
+		
+		var mapImage = $( "img[name='" + imageFile + "']" );
+		
+		var w = mapImage.width();
+		var h = mapImage.height();
+		var ratio = w / h;
+		
+		console.log("w " + w);
+		console.log("h " + h);
+		console.log("r " + ratio);
+		
+		var sh = $(window).height();
+		var sw = $(window).width();
+
+		console.log("sw " + sw);
+		console.log("sh " + sh);
+
+		w = sh * ratio; 
+		h = sh;
+		
+		console.log("w " + w);
+		console.log("h " + h);
+
+		mapImage.width(w + "px");
+		mapImage.height(h + "px");
+		
 		printSensors();
+		
 		<%
 	}
 	%>	
 		
+	
 	runVisitors();	    	  
 });
 
@@ -365,7 +385,7 @@ function printSensors()
         //div.attr({"id": name, "class": 'sensor context-menu-one', "index": i});
         div.css({"top": y - 10, "left": x - 7, "position": "absolute"});
         div.html(name);
-        $("#content-wrapper").append(div);
+        $("#map-container").append(div);
 		
 	}	
 }
@@ -443,6 +463,7 @@ function runNextVisitor()
 		//elem.className = "ball fas fa-walking";
 		elem.className = "ball fas fa-user-circle";
 		elem.style.color = colorsGradient[visitorsIndex % MAX_RUNNING_VISITORS];
+		//elem.setAttribute("path", visitorPath.path);
 		
 		var point = visitorPath[0];
     	
@@ -454,10 +475,8 @@ function runNextVisitor()
 		
       	elem.style.top = y + 'px';
       	elem.style.left = x + 'px';
-      	
-		//var parent = document.body("map-container");
-		
-			document.body.appendChild(elem);      
+      		
+		document.body.appendChild(elem);      
 				
 		var n = parseInt(Math.random() * 100) + 30;
 		//console.log("n " + n);
@@ -501,11 +520,20 @@ function runNextVisitor()
 		    }
 		}
 		
-		$( elem ).mouseover(function() {
+		var zIndex =  elem.zIndex;
+		
+		$( elem ).mouseover(function(e) {
 			  console.log("Handler for .mouseover() called" );
 			  
 			  clearInterval(id);
+			  /*
+			  $('.popuptext').text(visitorPath.path);
+			  var popup = document.getElementById("myPopup");
+			  $(".popup").css({left: e.pageX});
+			  $(".popup").css({top: e.pageY});
 			  
+			  popup.classList.toggle("show");
+			  */
 			  $(elem).css('z-index', 3000);
 			  
 			  var i = 0;
@@ -518,9 +546,9 @@ function runNextVisitor()
 			    	 var x = Math.floor(point.x * w);// + mapImage.offset().left;
 					 var y = Math.floor(point.y * h);// + mapImage.offset().top;
 					 
-					 console.log("(x, y) (" + x + ", " + y + ")" );
+					 //console.log("(x, y) (" + x + ", " + y + ")" );
 					 
-					 ctx.strokeStyle = "rgba(150, 150, 150, 0.6)";
+					 ctx.strokeStyle = elem.style.color;//"rgba(110, 110, 110, 0.6)";
 					 
 					 ctx.lineWidth = 1;
 					 
@@ -546,7 +574,7 @@ function runNextVisitor()
 				  }
 				  
 				  //updateCanvas();
-			  }, 3000 / visitorPath.length );
+			  }, 1000 / visitorPath.length );
 			  
 			  	
 			  
@@ -554,8 +582,11 @@ function runNextVisitor()
 			.mouseout(function() {
 				console.log("Handler for .mouseout() called" );
 				
-				$(elem).css('z-index', 1);
-				
+				$(elem).css('z-index', zIndex);
+				/*
+				var popup = document.getElementById("myPopup");
+				popup.classList.remove("show");
+				  */
 				clearCanvas();
 				if(id1 != 0)
 					clearInterval(id1);

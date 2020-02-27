@@ -1,4 +1,5 @@
 
+<%@page import="org.json.JSONObject"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.util.Comparator"%>
 <%@page import="java.util.Collections"%>
@@ -203,6 +204,42 @@ var imagesArray = [];
         	}
         %>
 		</select> 
+		<span>Filtro 1 </span>
+        <select id="filter1" name="filter1" style="width:100px;">
+        <option value="none" selected>nessuno</option>
+        <%
+        	for(int i = 0; i < sensorArray.length(); i++)
+        	{
+        		JSONObject sensor = sensorArray.getJSONObject(i);
+        		String name = sensor.getString("name");
+        		String type = sensor.getString("type");
+        		if(type.equals("sensor"))
+        		{
+	        		%>
+	        		<option value="<%=name%>"><%=name%></option>
+	        		<%
+        		}
+        	}
+        %>
+		</select> 
+		
+		<span>Filtro 2 </span>
+        <select id="filter2" name="filter2" style="width:100px;">
+        <option value="none" selected>nessuno</option>
+        <%
+        	for(int i = 0; i < sensorArray.length(); i++ )
+        	{
+        		JSONObject sensor = sensorArray.getJSONObject(i);
+        		String name = sensor.getString("name");
+        		String type = sensor.getString("type");
+        		if(type.equals("sensor"))
+        		{
+	        		%>
+	        		<option value="<%=name%>"><%=name%></option>
+	        		<%
+        		}
+        	}
+        %>
 		<input type="button" name="run" value="Submit" onClick="onRun()">
         <div>
         
@@ -334,6 +371,8 @@ function onRun()
 {
 	var from = $('#from').find(":selected").text();
 	var to = $('#to').find(":selected").text();
+	var filter1 = $('#filter1').find(":selected").text();
+	var filter2 = $('#filter2').find(":selected").text();
 	
 	var data;
 	
@@ -345,6 +384,11 @@ function onRun()
 	//{
 		data = {"name": "<%=mapName%>", "from": from, "to": to};
 	//}
+	if(filter1 != "nessuno")
+		data["filter1"]= filter1;
+	
+	if(filter2 != "nessuno")
+		data["filter2"]= filter2;
 	
 	var posting = $.post("generateHeatmap.jsp", data, function() {
 		

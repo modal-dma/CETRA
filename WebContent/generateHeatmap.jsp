@@ -24,21 +24,40 @@
 	String mapName = request.getParameter("name");
 	String from = request.getParameter("from");
 	String to = request.getParameter("to");
+	String filter1 = request.getParameter("filter1");
+	String filter2 = request.getParameter("filter2");
 
 	System.out.println("mapName " + mapName);
 		
-	String heatmapName = String.format("heatmap_%s-%s.png", from, to).replace("/", "");
+	String heatmapName = "heatmap";//String.format("heatmap_%s-%s", from, to).replace("/", "");
 		
+	if(!from.equals("Tutti"))
+	{
+		heatmapName += String.format("_%s-%s", from, to).replace("/", "");		
+	}
+	else
+	{
+		from = null;
+		to = null;
+	}
+	
+	if(filter1 != null)
+		heatmapName += "_" + filter1;
+	
+	if(filter2 != null)
+		heatmapName += "_" + filter2;
+	
+	heatmapName += ".png";
+	
 	ServletContext context = pageContext.getServletContext();
    
   	String dirPath = context.getRealPath("") + "maps" + File.separator + mapName;
     
   	File heatmapDir = new File(dirPath, "heatmaps");
   	File heatmapFile = new File(heatmapDir, heatmapName);
-  	String heatmapName0 = String.format("heatmap_0_%s-%s.png", from, to).replace("/", "");
+  	String heatmapName0 = "0_" + heatmapName;//String.format("heatmap_0_%s-%s.png", from, to).replace("/", "");
   	File heatmapFile0 = new File(heatmapDir, heatmapName0);
-  	
-  	
+  	  	
   	if(heatmapFile.exists())
   	{
   		%>{"heatmap":"<%=heatmapName%>"}<%
@@ -103,7 +122,22 @@
   	
   	try
   	{
-  		BufferedImage heatmapImage = HeatmapGenerator.generate(image, sensorsMap, doorsMap, new File(dirPath, "dataset.txt"), sdf.parse(from), sdf.parse(to), null);  	
+  		ArrayList<String> filters = null;
+		if(filter1 != null)
+		{
+			filters = new ArrayList<>();
+			filters.add(filter1);
+			
+			if(filter2 != null)
+				filters.add(filter2);
+		}
+		
+  		BufferedImage heatmapImage;
+  		
+  		if(from != null)
+  			heatmapImage = HeatmapGenerator.generate(image, sensorsMap, doorsMap, new File(dirPath, "dataset.txt"), sdf.parse(from), sdf.parse(to), filters);
+  		else
+  			heatmapImage = HeatmapGenerator.generate(image, sensorsMap, doorsMap, new File(dirPath, "dataset.txt"), null, null, filters);
   	
 	  	heatmapFile.mkdirs();
 	  	

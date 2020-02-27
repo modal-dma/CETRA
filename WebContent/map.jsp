@@ -283,8 +283,8 @@ $(document).ready(function () {
 		
 	    console.log(xPos, yPos);
 	    
-	    xPos = Math.floor(xPos / elm.width());
-	    yPos = Math.floor(yPos / elm.height());
+	    xPos = xPos / elm.width();
+	    yPos = yPos / elm.height();
 	    
 	    console.log(xPos, yPos);
 	    	    
@@ -335,8 +335,8 @@ function printSensors()
 		var w = mapImage.width();
 		var h = mapImage.height();
 		
-		var x = Math.floor(sensor.x * w) + mapImage.offset().left;
-		var y = Math.floor(sensor.y * h) + mapImage.offset().top;
+		var x = sensor.x * w + mapImage.offset().left;
+		var y = sensor.y * h + mapImage.offset().top;
 				    
 		console.log(x, y);
 		

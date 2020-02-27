@@ -28,22 +28,27 @@ System.out.println("files " + mapDirs);
           <span>Dashboard</span>
         </a>
       </li>
-      <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <i class="fas fa-fw fa-folder"></i>
-          <span>Mappe</span>
-        </a>
-        <div class="dropdown-menu" aria-labelledby="pagesDropdown">
-        <%
+      
+      <%
         	for(String map : mapDirs)
         	{
         		%>
-        		<a class="dropdown-item" href="map.jsp?name=<%=map%>"><%=map%></a>
+        		<li class="nav-item dropdown">
+        			<a class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          			<i class="fas fa-fw fa-folder"></i>
+          			<span><%=map%></span>
+        			</a>
+       				<div class="dropdown-menu" aria-labelledby="pagesDropdown">    
+       					<a class="dropdown-item" href="map.jsp?name=<%=map%>">Edit</a>    				
+       					<a class="dropdown-item" href="mapview.jsp?name=<%=map%>">Heatmap</a>
+       					<a class="dropdown-item" href="animapview.jsp?name=<%=map%>">Percorsi</a>
+       				</div>
+        		</li>
         		<%
         	}
         %>
-        </div>
-      </li>
+       
+  
       <!-- 
       <li class="nav-item">
         <a class="nav-link" href="charts.html">

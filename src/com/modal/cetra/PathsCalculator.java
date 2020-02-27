@@ -48,8 +48,13 @@ public class PathsCalculator {
 	    	
 	    	JSONObject wp = new JSONObject();
 	    	
-	    	wp.put("x", (double)node.x / (double)imageGray.getWidth());
-	    	wp.put("y", (double)node.y / (double)imageGray.getHeight());
+	    	double x = (double)node.x / (double)imageGray.getWidth();
+	    	double y = (double)node.y / (double)imageGray.getHeight();
+	    	x = ((int)(x*1000)) / 1000.0;
+	    	y = ((int)(y*1000)) / 1000.0;
+	    	
+	    	wp.put("x", x);
+	    	wp.put("y", y);
 	    	
 	    	path.put(wp);		    	
 	    }

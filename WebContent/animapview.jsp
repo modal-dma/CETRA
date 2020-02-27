@@ -1,14 +1,9 @@
 
-<%@page import="com.modal.cetra.HeatmapGenerator.VisitorPath"%>
-<%@page import="java.util.ArrayList"%>
-<%@page import="java.awt.Color"%>
-<%@page import="com.modal.cetra.Gradient"%>
-<%@page import="com.modal.cetra.HeatmapGenerator.Point"%>
-<%@page import="java.io.IOException"%>
-<%@page import="java.util.List"%>
-<%@page import="com.modal.cetra.HeatmapGenerator"%>
-<%@page import="java.text.SimpleDateFormat"%>
 <%@page import="org.json.JSONObject"%>
+<%@page import="java.util.ArrayList"%>
+<%@page import="java.util.Comparator"%>
+<%@page import="java.util.Collections"%>
+<%@page import="java.util.Collection"%>
 <%@page import="java.util.HashMap"%>
 <%@page import="org.json.JSONArray"%>
 <%@page import="java.io.BufferedReader"%>
@@ -17,76 +12,80 @@
 <%@page import="java.io.File"%>
 <%@page import="com.modal.cetra.Constants"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
-
 <%
 
-	ServletContext context = pageContext.getServletContext();
-	String mapName = request.getParameter("name");
-	String from = request.getParameter("from");
-	String to = request.getParameter("to");
-	String filter1 = request.getParameter("filter1");
-	String filter2 = request.getParameter("filter2");
+ServletContext context = pageContext.getServletContext();
+String mapName = request.getParameter("name");
+String tempDir = System.getProperty("java.io.tmpdir");
+String dirPath = context.getRealPath("");
+
+dirPath = dirPath + "maps" + File.separator + mapName;
+
+System.out.println("dirPath " + dirPath);
+
+File dir = new File(dirPath);
+
+String sensors = dirPath + File.separator + "sensors.json";
+
+System.out.println("sensorsFile " + sensors);
+
+JSONArray sensorArray = null;
+
+File sensorsFile = new File(sensors);
+if(sensorsFile.exists())
+{
+	FileReader fr = new FileReader(sensorsFile);
+	BufferedReader br = new BufferedReader(fr);
 	
-	String tempDir = System.getProperty("java.io.tmpdir");
-	String dirPath = context.getRealPath("");
+	String json = br.readLine();
 	
-	dirPath = dirPath + "maps" + File.separator + mapName;
+	System.out.println("sensors " + json);
 	
-	System.out.println("dirPath " + dirPath);
+	br.close();
+	fr.close();
 	
-	File dir = new File(dirPath);
+	sensorArray = new JSONArray(json);
+}
+
+File datasetFile = new File(dirPath, "dataset.txt");
+
+FileReader fr = new FileReader(datasetFile);
+BufferedReader br = new BufferedReader(fr);
+String line = "";
 	
-	String imageFiles[] = dir.list(new FilenameFilter() {
-		public boolean accept(File f, String file)
-		{
-			System.out.println("file " + file);
-			return file.endsWith("jpg") || file.endsWith("png");
-		}
-	});
+HashMap<String, String> dateMap = new HashMap<>();
 	
-	System.out.println("files " + imageFiles);
+while((line = br.readLine()) != null)
+{
+	String fields[] = line.split(",");
 	
-	String sensors = dirPath + File.separator + "sensors.json";
+	String datehour = fields[2];
 	
-	System.out.println("sensorsFile " + sensors);
-	
-	JSONArray sensorArray = null;
-	
-	File sensorsFile = new File(sensors);
-	if(sensorsFile.exists())
+	String date[] = datehour.split(" ");
+		
+	String day = date[0];
+	String hour = date[1];
+		
+	//System.out.println("day " + day);
+		
+	if(!dateMap.containsKey(day))
 	{
-		FileReader fr = new FileReader(sensorsFile);
-		BufferedReader br = new BufferedReader(fr);
-		
-		String json = br.readLine();
-		
-		System.out.println("sensors " + json);
-		
-		br.close();
-		fr.close();
-		
-		sensorArray = new JSONArray(json);
+		dateMap.put(day, day);
 	}
+}
+
+
+ArrayList<String> dates = new ArrayList(dateMap.values());
+
+Collections.sort(dates, new Comparator<String>() {
 	
-	JSONArray imagesArray = new JSONArray();
-	
-	HashMap<Integer, JSONObject> doorsMap = new HashMap();
-	HashMap<String, JSONObject> sensorsMap = new HashMap();
-	
-	for(int i = 0; i < sensorArray.length(); i++)
+	public int compare(String o1, String o2)
 	{
-		JSONObject item = sensorArray.getJSONObject(i);
-		if(item.getString("type").equals("door"))
-		{
-			doorsMap.put(item.getInt("floor"), item);  			
-		}
-		else
-		{
-			sensorsMap.put(item.getString("name"), item);
-		}
+		return o1.compareTo(o2);	
 	}
-	
-	System.out.println("sensor map: " + sensorsMap);
+});
+
+
 %>
 
 <!DOCTYPE html>
@@ -100,7 +99,7 @@
   <meta name="description" content="">
   <meta name="author" content="">
 
-  <title>CETRA Admin</title>
+  <title>CETRA</title>
 
   <!-- Custom fonts for this template-->
   <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -110,7 +109,6 @@
 
   <!-- Custom styles for this template-->
   <link href="css/sb-admin.css" rel="stylesheet">
-  <link href="css/style.css" rel="stylesheet">
   
      <link href="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
 	<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/themes/ui-darkness/jquery-ui.css" rel="stylesheet">
@@ -121,7 +119,7 @@
 	<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
     <script src="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.ui.position.min.js" type="text/javascript"></script>
   
-  <script src="js/widgetLoader.js"></script>
+  <script src="./js/jajaxloader.js"></script>
   
   <link rel="stylesheet" href="./skin/jajaxloader.css">
 <link rel="stylesheet" href="./skin/lukehaas/vertical_bars.css">
@@ -136,118 +134,188 @@
 <link rel="stylesheet" href="./skin/cssload/ventilator.css">
  
 <link href="css/style.css" rel="stylesheet">
-<script>
 
-var imagesArray = [];
-<%
-	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy");
-	
-	try
-	{
-		List<VisitorPath> visitorsPathArray;
-		
-		ArrayList<String> filters = null;
-		if(filter1 != null)
-		{
-			filters = new ArrayList<>();
-			filters.add(filter1);
-			
-			if(filter2 != null)
-				filters.add(filter2);
-		}
-		
-		if(from != null)
-			visitorsPathArray = HeatmapGenerator.generateVisitorPaths(sensorsMap, doorsMap, new File(dirPath, "dataset.txt"), sdf.parse(from), sdf.parse(to), filters);
-		else
-			visitorsPathArray = HeatmapGenerator.generateVisitorPaths(sensorsMap, doorsMap, new File(dirPath, "dataset.txt"), null, null, filters);
-		
-		JSONArray visitorsPaths = new JSONArray();
-		
-		for(VisitorPath vpath : visitorsPathArray)
-		{
-			JSONArray visitorPath = new JSONArray();
-			
-			for(Point p : vpath.pathArray)
-			{
-				JSONObject point = new JSONObject();
-				point.put("x", p.x);
-				point.put("y", p.y);
-					
-				visitorPath.put(point);
-			}
-			
-			JSONObject visitor = new JSONObject();
-			
-			visitor.put("points", visitorPath);
-			visitor.put("path", vpath.path);
-			
-			visitorsPaths.put(visitor);			
-		}		
-		
-		
-		%>
-var visitorsPaths = <%=visitorsPaths.toString()%>
-		<%
+<script type="text/javascript">
 
-	}
-	catch(IOException ex)
-	{
-		ex.printStackTrace();
-	}
-	
-//Color colors[] = Gradient.GRADIENT_GREEN_YELLOW_ORANGE_RED_50;
-Color colors[] = Gradient.GRADIENT_RAINBOW_100;
-
-JSONArray colorArray = new JSONArray();
-
-for(Color color : colors)
+$(document).ready(function () 
 {
-	colorArray.put(String.format("rgba(%d, %d, %d, 1)", color.getRed(), color.getGreen(), color.getBlue()));
+	var w = $(window).width();
+	var h = $(window).height();
+	
+	var top = $("#mapframe").offset().top;
+	
+	h = h - top;
+	
+	$("#mapframe").height(h);
+});
+
+function onRun()
+{
+	var url = "animap.jsp?name=<%=mapName%>"
+	
+	var from = $('#from').find(":selected").text();
+	var to = $('#to').find(":selected").text();
+	var filter1 = $('#filter1').find(":selected").text();
+	var filter2 = $('#filter2').find(":selected").text();
+	
+	if(from != "Tutti")
+		url += "&from=" + from + "&to=" + to;
+	
+	if(filter1 != "nessuno")
+		url += '&filter1=' + filter1;
+	
+	if(filter2 != "nessuno")
+		url += '&filter2=' + filter2;
+	
+	$("#mapframe").attr('src', url)
 }
 
-%>
-var colorsGradient = <%=colorArray.toString()%>
-
 </script>
+
 </head>
 
 <body id="page-top">
 
+  <nav class="navbar navbar-expand navbar-dark bg-dark static-top">
+
+    <a class="navbar-brand mr-1" href="index.html">CETRA</a>
+
+    <button class="btn btn-link btn-sm text-white order-1 order-sm-0" id="sidebarToggle" href="#">
+      <i class="fas fa-bars"></i>
+    </button>
+
+   <jsp:include page="navbaradmin.jsp"/>
+
+  </nav>
 
   <div id="wrapper">
 
+    <!-- Sidebar -->
+    <jsp:include page="sidebaradmin.jsp"/>
+    
+    <div id="content-wrapper">
+
       <div class="container-fluid">
 
-        <div id="map-container" style="text-align: center;">
+        <!-- Breadcrumbs-->
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a href="index.html">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item active"><%=mapName %></li>
+        </ol>
+
+        <!-- Page Content -->
+        <h1><%=mapName %></h1>
+        <hr>
         
+        <span>Da: </span>
+        <select id="from" name="from" style="width:100px;">
+        	<option value="tutti" selected>Tutti</option>
         <%
-        for(String imageFile : imageFiles)
-        {
-        	imagesArray.put(imageFile);
-        	
-        	String url = context.getContextPath() + "/maps/" + mapName + "/" + imageFile;
-        	
-        	System.out.println("url " + url);
-        	
-        	%>
-        	<img class="mapimage" name="<%=imageFile%>" src="<%=url %>">
-        	<canvas id="coveringCanvas" class="coveringCanvas"></canvas>
-        	<%
-        }
-        %>         
-        
-        </div> 
+        	for(String date : dates)
+        	{
+        		%>
+        		<option value="<%=date%>"><%=date%></option>
+        		<%
+        	}
+        %>
+		</select> 
+		<span>A: </span>
+        <select id="to" name="to" style="width:100px;">
+        <%
+        	for(String date : dates)
+        	{
+        		%>
+        		<option value="<%=date%>"><%=date%></option>
+        		<%
+        	}
+        %>
+		</select> 
+		<span>Filtro 1 </span>
+        <select id="filter1" name="filter1" style="width:100px;">
+        <option value="none" selected>nessuno</option>
+        <%
+        	for(int i = 0; i < sensorArray.length(); i++ )
+        	{
+        		JSONObject sensor = sensorArray.getJSONObject(i);
+        		String name = sensor.getString("name");
+        		String type = sensor.getString("type");
+        		if(type.equals("sensor"))
+        		{
+	        		%>
+	        		<option value="<%=name%>"><%=name%></option>
+	        		<%
+        		}
+        	}
+        %>
+		</select> 
+		
+		<span>Filtro 2 </span>
+        <select id="filter2" name="filter2" style="width:100px;">
+        <option value="none" selected>nessuno</option>
+        <%
+        	for(int i = 0; i < sensorArray.length(); i++ )
+        	{
+        		JSONObject sensor = sensorArray.getJSONObject(i);
+        		String name = sensor.getString("name");
+        		String type = sensor.getString("type");
+        		if(type.equals("sensor"))
+        		{
+	        		%>
+	        		<option value="<%=name%>"><%=name%></option>
+	        		<%
+        		}
+        	}
+        %>
+		</select> 
+		<input type="button" name="run" value="Submit" onClick="onRun()">
+        <iframe id="mapframe" src="animap.jsp?name=<%=mapName%>" width="100%" height="100%" frameBorder="0" scrolling="no">
+        </iframe>              	         
       </div>
       <!-- /.container-fluid -->
 
+      <!-- Sticky Footer -->
+      <footer class="sticky-footer">
+        <div class="container my-auto">
+          <div class="copyright text-center my-auto">
+            <span>Copyright © Modal 2019-2020</span>
+          </div>
+        </div>
+      </footer>
+
+    </div>
+    <!-- /.content-wrapper -->
 
   </div>
   <!-- /#wrapper -->
 
-<div class="popup">
-  <span class="popuptext" id="myPopup">&nbsp;</span>
-</div>
+  <!-- Scroll to Top Button-->
+  <a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+  </a>
 
+  <!-- Logout Modal-->
+  <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">Ã—</span>
+          </button>
+        </div>
+        <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+          <a class="btn btn-primary" href="login.html">Logout</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Bootstrap core JavaScript-->
+  
+  
   <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
   <!-- Core plugin JavaScript-->
@@ -255,351 +323,8 @@ var colorsGradient = <%=colorArray.toString()%>
 
   <!-- Custom scripts for all pages-->
   <script src="js/sb-admin.min.js"></script>
+  
 
-<script>
-
-var sensorsArray = [];
-var sensorsMap = {};
-
-var canvas;
-var canvasWidth;
-var canvasHeight;
-var ctx;
-var canvasData;
-
-$(document).ready(function () {
-	
-	
-	<% if(sensorArray != null)
-	{
-	%>
-		sensorsArray = <%=sensorArray.toString()%>;
-
-		var sensor = sensorsArray[0];
-		
-		var imageFile = sensor.image;
-		
-		var mapImage = $( "img[name='" + imageFile + "']" );
-		
-		var w = mapImage.width();
-		var h = mapImage.height();
-		var ratio = w / h;
-		
-		console.log("w " + w);
-		console.log("h " + h);
-		console.log("r " + ratio);
-		
-		var sh = $(window).height();
-		var sw = $(window).width();
-
-		console.log("sw " + sw);
-		console.log("sh " + sh);
-
-		w = sh * ratio; 
-		h = sh;
-		
-		console.log("w " + w);
-		console.log("h " + h);
-
-		mapImage.width(w + "px");
-		mapImage.height(h + "px");
-		
-		printSensors();
-		
-		<%
-	}
-	%>	
-		
-	
-	runVisitors();	    	  
-});
-
-
-function printSensors()
-{
-	$('.sensor').remove();
-	$('.door').remove();
-	sensorsMap = {};
-	
-	for(var i = 0; i < sensorsArray.length; i++)
-	{
-		var sensor = sensorsArray[i];
-		
-		var imageFile = sensor.image;
-		
-		var mapImage = $( "img[name='" + imageFile + "']" );
-		
-		var w = mapImage.width();
-		var h = mapImage.height();
-		
-		var x = Math.floor(sensor.x * w) + mapImage.offset().left;
-		var y = Math.floor(sensor.y * h) + mapImage.offset().top;
-				    
-		console.log(x, y);
-		
-		var name = sensor.name;
-		
-		sensorsMap[name] = name;       
-		
-		var type = sensor.type;
-		
-		var div = $("<div />");
-		
-		if(type == "sensor")
-        	div.attr({"id": name, "class": 'sensor context-menu-one', "index": i});
-    	else
-    		div.attr({"id": name, "class": 'door context-menu-one', "index": i});
-	
-        //div.attr({"id": name, "class": 'sensor context-menu-one', "index": i});
-        div.css({"top": y - 10, "left": x - 7, "position": "absolute"});
-        div.html(name);
-        $("#map-container").append(div);
-		
-	}	
-}
-
-const MAX_RUNNING_VISITORS = 100;
-
-var visitorsIndex = 0;
-function runVisitors()
-{
-	var sensor = sensorsArray[0];
-	var imageFile = sensor.image;
-	var mapImage = $( "img[name='" + imageFile + "']" );
-	var x = mapImage.offset().left;
-	var y = mapImage.offset().top;
-	var w = mapImage.width();
-	var h = mapImage.height();
-	
-	$('.coveringCanvas').css({left:x, top:y, width:w, height:h});
-	
-	canvas = document.getElementById("coveringCanvas");
-	
-	// Get the device pixel ratio, falling back to 1.
-	var dpr = window.devicePixelRatio || 1;
-	
-	// Get the size of the canvas in CSS pixels.
-	var rect = canvas.getBoundingClientRect();
-	// Give the canvas pixel dimensions of their CSS
-	// size * the device pixel ratio.
-	canvas.width = rect.width * dpr;
-	canvas.height = rect.height * dpr;
-	
-	ctx = canvas.getContext('2d');
-	// Scale all drawing operations by the dpr, so you
-	// don't have to worry about the difference.
-	ctx.scale(dpr, dpr);
-
-	canvasWidth = canvas.width;
-	canvasHeight = canvas.height;
-/*
-	ctx = canvas.getContext("2d");
-	ctx.imageSmoothingEnabled = true;
-	canvasData = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
-*/
-	console.log("canvas width " + canvasWidth);
-	console.log("canvas height " + canvasHeight);
-
-	for(var i = 0; i < MAX_RUNNING_VISITORS && i < visitorsPaths.length; i++)
-	{
-		runNextVisitor();
-		//setTimeout(runNextVisitor(), Math.random() * 2000 + 1)		
-	}
-}
-
-function runNextVisitor()
-{
-	//console.log("visitorsIndex " + visitorsIndex);
-	
-	if(visitorsIndex < visitorsPaths.length)
-	{
-		var sensor = sensorsArray[0];
-		var imageFile = sensor.image;
-		
-		var mapImage = $( "img[name='" + imageFile + "']" );
-		var w = mapImage.width();
-		var h = mapImage.height();
-			
-		var visitorPath = visitorsPaths[visitorsIndex];
-		
-		//var elem = document.createElement("img");   // Create a <img> element
-		//elem.src = "images/3dball.png";
-		//elem.className = "ball";
-		//elem.style.background = colorsGradient[visitorsIndex];
-		
-		var elem = document.createElement("i");   // Create a <img> element
-		//elem.className = "ball fas fa-walking";
-		elem.className = "ball fas fa-user-circle";
-		elem.style.color = colorsGradient[visitorsIndex % MAX_RUNNING_VISITORS];
-		elem.setAttribute("path", visitorPath.path);
-		
-		var point = visitorPath.points[0];
-    	
-    	var x = Math.floor(point.x * w) + mapImage.offset().left;
-		var y = Math.floor(point.y * h) + mapImage.offset().top;
-		
-		x = x - 4;
-		y = y - 4;
-		
-      	elem.style.top = y + 'px';
-      	elem.style.left = x + 'px';
-      		
-		document.body.appendChild(elem);      
-				
-		var n = parseInt(Math.random() * 100) + 30;
-		//console.log("n " + n);
-		
-		var id = setInterval(frame, n);
-		var id1 = 0;
-		
-		var visitorIndex = visitorsIndex;
-		var index = 0;
-		
-		visitorsIndex++;
-		
-		function frame() 
-		{		
-			//console.log("frame " + visitorIndex);
-			
-		    if (index >= visitorPath.points.length) 
-		    {
-		    	//console.log("index >= visitorPath.length");
-		    	
-		    	clearInterval(id);
-		    	elem.parentNode.removeChild(elem);
-		    	runNextVisitor();
-		    } 
-		    else 
-		    {
-		    	//console.log("index < visitorPath.length");
-		    	
-		    	var point = visitorPath.points[index];
-		    			    		    	
-		    	var x = Math.floor(point.x * w) + mapImage.offset().left;
-				var y = Math.floor(point.y * h) + mapImage.offset().top;
-				
-				x = x - 4;
-				y = y - 4;
-				
-		      	elem.style.top = y + 'px';
-		      	elem.style.left = x + 'px';
-		      	
-		      	index++;
-		    }
-		}
-		
-		var zIndex =  elem.zIndex;
-		
-		$( elem ).mouseover(function(e) {
-			  console.log("Handler for .mouseover() called" );
-			  
-			  clearInterval(id);
-			  
-			  $('.popuptext').text(visitorPath.path);
-			  var popup = document.getElementById("myPopup");
-			  $(".popup").css({left: e.pageX});
-			  $(".popup").css({top: e.pageY});
-			  
-			  popup.classList.toggle("show");
-			  
-			  $(elem).css('z-index', 3000);
-			  
-			  var i = 0;
-			  id1 = setInterval(function() 
-			  {
-				  if(i < visitorPath.points.length)					  
-				  {
-				 	 var point = visitorPath.points[i];
-				 	 
-			    	 var x = Math.floor(point.x * w);// + mapImage.offset().left;
-					 var y = Math.floor(point.y * h);// + mapImage.offset().top;
-					 
-					 //console.log("(x, y) (" + x + ", " + y + ")" );
-					 
-					 ctx.strokeStyle = elem.style.color;//"rgba(110, 110, 110, 0.6)";
-					 
-					 ctx.lineWidth = 1;
-					 
-					 //ctx.strokeRect(x,y,1,1);
-					 
-					 ctx.beginPath();
-					 ctx.arc(x, y, 1, 0, 2 * Math.PI, true);
-					 ctx.stroke();
-					 
-					/* 
-					 ctx.beginPath();
-					 ctx.moveTo(x, y);
-					 ctx.lineTo(x + 1, y + 1);
-					 //ctx.arc(x, y, 0.1, 0, 2 * Math.PI, true);
-					 ctx.stroke();
-					 */
-					 //ctx.fillRect(x,y,1,1);
-					 
-					 //drawPixel(x, y, 20, 20, 20, 1);
-					 
-					 i++;
-					 
-				  }
-				  
-				  //updateCanvas();
-			  }, 1000 / visitorPath.points.length );
-			  
-			  	
-			  
-			})
-			.mouseout(function() {
-				console.log("Handler for .mouseout() called" );
-				
-				$(elem).css('z-index', zIndex);
-				
-				var popup = document.getElementById("myPopup");
-				popup.classList.remove("show");
-				  
-				clearCanvas();
-				if(id1 != 0)
-					clearInterval(id1);
-				
-				id = setInterval(frame, n);
-  			});
-		
-	
-		
-	}
-	else
-	{
-		console.log("restart");
-		visitorsIndex = 0;
-		
-		runNextVisitor();		
-	}
-}
-
-
-
-// That's how you define the value of a pixel //
-function drawPixel (x, y, r, g, b, a) {
-    var index = (x + y * canvasWidth) * 4;
-
-    canvasData.data[index + 0] = r;
-    canvasData.data[index + 1] = g;
-    canvasData.data[index + 2] = b;
-    canvasData.data[index + 3] = a;
-}
-
-// That's how you update the canvas, so that your //
-// modification are taken in consideration //
-function updateCanvas() {
-	
-	console.log("updateCanvas");
-    ctx.putImageData(canvasData, 0, 0);
-}
-
-function clearCanvas() {
-    
-	console.log("clearCanvas");
-	ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-}
-</script>
 </body>
 
 </html>
