@@ -250,7 +250,7 @@ var colorsGradient = <%=colorArray.toString()%>;
 
       <div class="container-fluid">
 
-        <div id="map-container" style="text-align: center;">
+        <div id="map-container"> <!--   style="text-align: center;" -->
         
         <%
         for(String imageFile : imageFiles)

@@ -12,6 +12,7 @@
 <%@page import="java.io.File"%>
 <%@page import="com.modal.cetra.Constants"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
+
 <%
 
 ServletContext context = pageContext.getServletContext();
@@ -24,6 +25,10 @@ dirPath = dirPath + "maps" + File.separator + mapName;
 System.out.println("dirPath " + dirPath);
 
 File dir = new File(dirPath);
+
+File heatmapFile = new File(dir, "heatmaps" + File.separator + "heatmap.png");
+
+System.out.println("heatmapFile " + heatmapFile);
 
 String sensors = dirPath + File.separator + "sensors.json";
 
@@ -134,87 +139,20 @@ Collections.sort(dates, new Comparator<String>() {
 <link rel="stylesheet" href="./skin/cssload/ventilator.css">
  
 <link href="css/style.css" rel="stylesheet">
+<script>
 
-<script type="text/javascript">
-
-$(document).ready(function () 
-{
-	var w = $(window).width();
-	var h = $(window).height();
-	
-	var top = $("#mapframe").offset().top;
-	
-	h = h - top;
-	
-	$("#mapframe").height(h);
-	
-	var path = location.pathname;
-	path = path.substring(0, path.lastIndexOf("/"));
-	
-	$('#iframeref').attr('value', '<iframe id="mapframe" src="' + location.protocol + '//' + location.hostname + ':' + location.port + path + '/animapviewframe.jsp?name=<%=mapName%>" width="100%" height="100%" frameBorder="0" scrolling="no">');
-});
-
-function onRun()
-{
-	var url = "animap.jsp?name=<%=mapName%>"
-	
-	var from = $('#from').find(":selected").text();
-	var to = $('#to').find(":selected").text();
-	var filter1 = $('#filter1').find(":selected").text();
-	var filter2 = $('#filter2').find(":selected").text();
-	
-	if(from != "Tutti")
-		url += "&from=" + from + "&to=" + to;
-	
-	if(filter1 != "nessuno")
-		url += '&filter1=' + filter1;
-	
-	if(filter2 != "nessuno")
-		url += '&filter2=' + filter2;
-	
-	$("#mapframe").attr('src', url)
-	
-	var path = location.pathname;
-	path = path.substring(0, path.lastIndexOf("/"));
-	
-	$('#iframeref').attr('value', '<iframe id="mapframe" src="' + location.protocol + '//' + location.hostname + ':' + location.port + path + "/" + url + ' width="100%" height="100%" frameBorder="0" scrolling="no">');
-	
-}
+var imagesArray = [];
 
 </script>
-
 </head>
 
 <body id="page-top">
 
-  <nav class="navbar navbar-expand navbar-dark bg-dark static-top">
-
-    <a class="navbar-brand mr-1" href="index.html">CETRA</a>
-
-    <button class="btn btn-link btn-sm text-white order-1 order-sm-0" id="sidebarToggle" href="#">
-      <i class="fas fa-bars"></i>
-    </button>
-
-   <jsp:include page="navbaradmin.jsp"/>
-
-  </nav>
-
   <div id="wrapper">
-
-    <!-- Sidebar -->
-    <jsp:include page="sidebaradmin.jsp"/>
-    
+ 
     <div id="content-wrapper">
 
-      <div class="container-fluid">
-
-        <!-- Breadcrumbs-->
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item">
-            <a href="index.html">Dashboard</a>
-          </li>
-          <li class="breadcrumb-item active"><%=mapName %></li>
-        </ol>
+      <div class="container-fluid">        
 
         <!-- Page Content -->
         <h1><%=mapName %></h1>
@@ -247,7 +185,7 @@ function onRun()
         <select id="filter1" name="filter1" style="width:100px;">
         <option value="none" selected>nessuno</option>
         <%
-        	for(int i = 0; i < sensorArray.length(); i++ )
+        	for(int i = 0; i < sensorArray.length(); i++)
         	{
         		JSONObject sensor = sensorArray.getJSONObject(i);
         		String name = sensor.getString("name");
@@ -279,24 +217,24 @@ function onRun()
         		}
         	}
         %>
-		</select> 
 		<input type="button" name="run" value="Submit" onClick="onRun()">
-        <iframe id="mapframe" src="animap.jsp?name=<%=mapName%>" width="100%" height="100%" frameBorder="0" scrolling="no">
-        </iframe>              	         
+        <div>
+        
+        <%
+        	
+        	String url = context.getContextPath() + "/maps/" + mapName + "/heatmaps/" + heatmapFile.getName();
+        	
+        	System.out.println("url " + url);
+        	
+        	%>
+        	<img class="mapimage" name="<%=heatmapFile.getName()%>" src="<%=url %>">
+        	<%        
+        %>              	         
+        </div> 
+       
       </div>
       <!-- /.container-fluid -->
 
-<div>
-<input id="iframeref" type="TextArea" style="margin: 10px; width: 100%;height: 60px;" value='<iframe id="mapframe" src="animap.jsp?name=<%=mapName%>" width="100%" height="100%" frameBorder="0" scrolling="no">'>
-</div>
-      <!-- Sticky Footer -->
-      <footer class="sticky-footer">
-        <div class="container my-auto">
-          <div class="copyright text-center my-auto">
-            <span>Copyright © Modal 2019-2020</span>
-          </div>
-        </div>
-      </footer>
 
     </div>
     <!-- /.content-wrapper -->
@@ -304,32 +242,11 @@ function onRun()
   </div>
   <!-- /#wrapper -->
 
-  <!-- Scroll to Top Button-->
-  <a class="scroll-to-top rounded" href="#page-top">
-    <i class="fas fa-angle-up"></i>
-  </a>
-
-  <!-- Logout Modal-->
-  <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">Ã—</span>
-          </button>
-        </div>
-        <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-          <a class="btn btn-primary" href="login.html">Logout</a>
-        </div>
-      </div>
-    </div>
-  </div>
+  
   <!-- Bootstrap core JavaScript-->
-  
-  
+  <!-- 
+  <script src="vendor/jquery/jquery.min.js"></script>
+   -->
   <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
   <!-- Core plugin JavaScript-->
@@ -337,8 +254,122 @@ function onRun()
 
   <!-- Custom scripts for all pages-->
   <script src="js/sb-admin.min.js"></script>
-  
 
+<script>
+
+var sensorsArray = [];
+var sensorsMap = {};
+
+$(document).ready(function () {
+
+	var w = $(window).width();
+	var h = $(window).height();
+	
+	var top = $(".mapimage").offset().top;
+	
+	h = h - top;
+	
+	$(".mapimage").height(h);
+	
+	<% if(sensorArray != null)
+	{
+	%>
+		sensorsArray = <%=sensorArray.toString()%>;
+	
+		printSensors();
+	<%
+	}
+	%>		
+});
+
+
+function printSensors()
+{
+	$('.sensor').remove();
+	sensorsMap = {};
+	
+	for(var i = 0; i < sensorsArray.length; i++)
+	{
+		var sensor = sensorsArray[i];
+		
+		var imageFile = sensor.image;
+		
+		var mapImage = $(".mapimage")
+		
+		var w = mapImage.width();
+		var h = mapImage.height();
+		
+		var x = sensor.x * w + mapImage.offset().left;
+		var y = sensor.y * h + mapImage.offset().top;
+				    
+		console.log(x, y);
+		
+		var name = sensor.name;
+		
+		sensorsMap[name] = name;       
+		
+		var type = sensor.type;
+		
+		var div = $("<div />")
+		if(type == "sensor")
+        	div.attr({"id": name, "class": 'sensor context-menu-one', "index": i});
+    	else
+    		div.attr({"id": name, "class": 'door context-menu-one', "index": i});
+	
+        //div.attr({"id": name, "class": 'sensor context-menu-one', "index": i});
+        div.css({"top": y - 10, "left": x - 7, "position": "absolute"});
+        div.html(name);
+        $("#content-wrapper").append(div);
+		
+	}	
+}
+
+function onRun()
+{
+	var from = $('#from').find(":selected").text();
+	var to = $('#to').find(":selected").text();
+	var filter1 = $('#filter1').find(":selected").text();
+	var filter2 = $('#filter2').find(":selected").text();
+	
+	var data;
+	
+	//if(from.equals("Tutti"))
+	//{
+	//	data = {"name": "<%=mapName%>"};
+	//}
+	//else
+	//{
+		data = {"name": "<%=mapName%>", "from": from, "to": to};
+	//}
+	if(filter1 != "nessuno")
+		data["filter1"]= filter1;
+	
+	if(filter2 != "nessuno")
+		data["filter2"]= filter2;
+	
+	var posting = $.post("generateHeatmap.jsp", data, function() {
+		
+	})
+	.fail(function( error, textStatus, errorThrown ) {
+    	alert( textStatus + " " + errorThrown);
+    })
+    .done(function( data ) {
+   	
+    	data = data.trim();
+    	var json = JSON.parse(data);
+    	
+    	var heatmap = json.heatmap;
+    	
+    	var url = "maps/<%=mapName%>/heatmaps/" + heatmap;
+    	
+    	//Console.debug("url " + url);
+    	
+    	$(".mapimage").attr("src", url);
+            
+    });
+}
+
+</script>
 </body>
 
 </html>

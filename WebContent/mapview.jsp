@@ -254,8 +254,14 @@ var imagesArray = [];
         	<%        
         %>              	         
         </div> 
+        
+        <div>
+			<input id="iframeref" type="TextArea" style="margin: 10px; width: 100%;height: 60px;" value='<iframe id="mapframe" src="mapviewframe.jsp?name=<%=mapName%>" width="100%" height="100%" frameBorder="0" scrolling="no">'>
+		</div>
+
       </div>
       <!-- /.container-fluid -->
+
 
       <!-- Sticky Footer -->
       <footer class="sticky-footer">
@@ -323,6 +329,11 @@ $(document).ready(function () {
 	<%
 	}
 	%>		
+	
+	var path = location.pathname;
+	path = path.substring(0, path.lastIndexOf("/"));
+	
+	$('#iframeref').attr('value', '<iframe id="mapframe" src="' + location.protocol + '//' + location.hostname + ':' + location.port + path + '/mapviewframe.jsp?name=<%=mapName%>" width="100%" height="100%" frameBorder="0" scrolling="no">');
 });
 
 
@@ -408,8 +419,30 @@ function onRun()
     	//Console.debug("url " + url);
     	
     	$(".mapimage").attr("src", url);
+    	
+    	url = "mapviewframe.jsp?name=<%=mapName%>"
+    		
+   		if(from != "Tutti")
+   			url += "&from=" + from + "&to=" + to;
+   		
+   		if(filter1 != "nessuno")
+   			url += '&filter1=' + filter1;
+   		
+   		if(filter2 != "nessuno")
+   			url += '&filter2=' + filter2;
+   		
+   		$("#mapframe").attr('src', url)
+   		
+   		var path = location.pathname;
+   		path = path.substring(0, path.lastIndexOf("/"));
+   		
+   		$('#iframeref').attr('value', '<iframe id="mapframe" src="' + location.protocol + '//' + location.hostname + ':' + location.port + path + "/" + url + '" width="100%" height="100%" frameBorder="0" scrolling="no">');
+   		
+    		
             
     });
+	
+	
 }
 
 </script>

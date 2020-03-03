@@ -147,11 +147,6 @@ $(document).ready(function ()
 	h = h - top;
 	
 	$("#mapframe").height(h);
-	
-	var path = location.pathname;
-	path = path.substring(0, path.lastIndexOf("/"));
-	
-	$('#iframeref').attr('value', '<iframe id="mapframe" src="' + location.protocol + '//' + location.hostname + ':' + location.port + path + '/animapviewframe.jsp?name=<%=mapName%>" width="100%" height="100%" frameBorder="0" scrolling="no">');
 });
 
 function onRun()
@@ -172,13 +167,7 @@ function onRun()
 	if(filter2 != "nessuno")
 		url += '&filter2=' + filter2;
 	
-	$("#mapframe").attr('src', url)
-	
-	var path = location.pathname;
-	path = path.substring(0, path.lastIndexOf("/"));
-	
-	$('#iframeref').attr('value', '<iframe id="mapframe" src="' + location.protocol + '//' + location.hostname + ':' + location.port + path + "/" + url + ' width="100%" height="100%" frameBorder="0" scrolling="no">');
-	
+	$("#mapframe").attr('src', url)	
 }
 
 </script>
@@ -187,34 +176,12 @@ function onRun()
 
 <body id="page-top">
 
-  <nav class="navbar navbar-expand navbar-dark bg-dark static-top">
-
-    <a class="navbar-brand mr-1" href="index.html">CETRA</a>
-
-    <button class="btn btn-link btn-sm text-white order-1 order-sm-0" id="sidebarToggle" href="#">
-      <i class="fas fa-bars"></i>
-    </button>
-
-   <jsp:include page="navbaradmin.jsp"/>
-
-  </nav>
-
+ 
   <div id="wrapper">
 
-    <!-- Sidebar -->
-    <jsp:include page="sidebaradmin.jsp"/>
-    
     <div id="content-wrapper">
 
       <div class="container-fluid">
-
-        <!-- Breadcrumbs-->
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item">
-            <a href="index.html">Dashboard</a>
-          </li>
-          <li class="breadcrumb-item active"><%=mapName %></li>
-        </ol>
 
         <!-- Page Content -->
         <h1><%=mapName %></h1>
@@ -286,48 +253,12 @@ function onRun()
       </div>
       <!-- /.container-fluid -->
 
-<div>
-<input id="iframeref" type="TextArea" style="margin: 10px; width: 100%;height: 60px;" value='<iframe id="mapframe" src="animap.jsp?name=<%=mapName%>" width="100%" height="100%" frameBorder="0" scrolling="no">'>
-</div>
-      <!-- Sticky Footer -->
-      <footer class="sticky-footer">
-        <div class="container my-auto">
-          <div class="copyright text-center my-auto">
-            <span>Copyright © Modal 2019-2020</span>
-          </div>
-        </div>
-      </footer>
-
+  
     </div>
     <!-- /.content-wrapper -->
 
   </div>
   <!-- /#wrapper -->
-
-  <!-- Scroll to Top Button-->
-  <a class="scroll-to-top rounded" href="#page-top">
-    <i class="fas fa-angle-up"></i>
-  </a>
-
-  <!-- Logout Modal-->
-  <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">Ã—</span>
-          </button>
-        </div>
-        <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-          <a class="btn btn-primary" href="login.html">Logout</a>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- Bootstrap core JavaScript-->
   
   
   <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
