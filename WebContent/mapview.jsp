@@ -374,6 +374,16 @@ function printSensors()
         div.css({"top": y - 10, "left": x - 7, "position": "absolute"});
         div.html(name);
         $("#content-wrapper").append(div);
+        
+        var span = $("<span />")
+    	span.attr({"class": 'gradient'});
+        
+        x = w + mapImage.offset().left;
+		y = mapImage.offset().top;
+		
+		span.css({"top": y + 10, "left": x - 160, "position": "absolute"});
+        
+        $("#content-wrapper").append(span);
 		
 	}	
 }

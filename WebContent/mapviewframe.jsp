@@ -280,6 +280,8 @@ $(document).ready(function () {
 	<%
 	}
 	%>		
+	
+	printLegenda();
 });
 
 
@@ -322,6 +324,21 @@ function printSensors()
         $("#content-wrapper").append(div);
 		
 	}	
+}
+
+function printLegenda()
+{		
+	var mapImage = $(".mapimage")
+	
+	var w = mapImage.width();
+	var h = mapImage.height();
+	var x = mapImage.offset().left;
+	var y = mapImage.offset().top;
+				    
+	var div = $("<div />")
+   	div.attr({"id": name, "class": 'gradient'});
+    div.css({"top": y + 10, "left": w - x - 100, "position": "absolute"});
+    $("#content-wrapper").append(div);
 }
 
 function onRun()

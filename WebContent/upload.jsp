@@ -82,14 +82,19 @@
 	         boolean isInMemory = fi.isInMemory();
 	         long sizeInBytes = fi.getSize();
 	      
+	         if(fieldName.equals("paths"))
+	        	 fileName = "dataset.txt";
+	         
+	         file = new File(dirPath + File.separator + fileName) ;
+	         
 	         // Write the file
-	         if( fileName.lastIndexOf("\\") >= 0 ) {
-	            file = new File( dirPath + File.separator + 
-	            fileName.substring( fileName.lastIndexOf("\\"))) ;
-	         } else {
-	            file = new File( dirPath + File.separator + 
-	            fileName.substring(fileName.lastIndexOf("\\")+1)) ;
-	         }
+	         //if( fileName.lastIndexOf("\\") >= 0 ) {
+	         //   file = new File(dirPath + File.separator + 
+	         //   				fileName.substring( fileName.lastIndexOf("\\"))) ;
+	         //} else {
+	         //   file = new File(dirPath + File.separator + 
+	         //   				fileName.substring(fileName.lastIndexOf("\\")+1)) ;
+	         //}
 	         fi.write( file ) ;	         
          }
          

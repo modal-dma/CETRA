@@ -42,6 +42,7 @@ System.out.println("files " + mapDirs);
        					<a class="dropdown-item" href="map.jsp?name=<%=map%>">Edit</a>    				
        					<a class="dropdown-item" href="mapview.jsp?name=<%=map%>">Heatmap</a>
        					<a class="dropdown-item" href="animapview.jsp?name=<%=map%>">Percorsi</a>
+       					<a class="dropdown-item" onclick="deleteMap('<%=map%>')">Elimina</a>
        				</div>
         		</li>
         		<%
@@ -62,3 +63,20 @@ System.out.println("files " + mapDirs);
       </li>
        -->
     </ul>
+    <script>
+    function deleteMap(map)
+    {
+    	var r = confirm("Sei sicuro di voler cancellare la mappa " + map + "?");
+    	if (r == true) {
+    		var posting = $.get("deleteMap.jsp?name=" + map, null, function() {
+    			
+    		})
+    		.fail(function( error, textStatus, errorThrown ) {
+    	    	alert( textStatus + " " + errorThrown);
+    	    })
+    	    .done(function( data ) {
+    	    	location.reload();
+    	    });
+    	}
+    }
+    </script>

@@ -60,6 +60,7 @@
         <h1>Gestione Mappe</h1>
         <hr>
         <p>Per caricare una mappa digita il nome, seleziona il relativo file jpg o png e il dataset contente i percorsi</p>
+        <p>Attenzione: La dimensione massima della mappa, in larghezza o altezza non deve superare i 1000 pixel</p>
         
         <form method="POST" action="upload.jsp" enctype="multipart/form-data">
         <table>

@@ -247,8 +247,8 @@ $(document).ready(function () {
 	%>
 		sensorsArray = <%=sensorArray.toString()%>;
 	
-		printSensors();
-		<%
+		setTimeout(function() {printSensors();}, 500);
+		<%	
 	}
 	%>	
 		
