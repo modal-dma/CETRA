@@ -211,19 +211,18 @@ function printSensors()
         //div.attr({"id": name, "class": 'sensor context-menu-one', "index": i});
         div.css({"top": y - 10, "left": x - 7, "position": "absolute"});
         div.html(name);
-        $("#content-wrapper").append(div);
-        
-        var span = $("<span />")
-    	span.attr({"class": 'gradient'});
-        
-        x = w + mapImage.offset().left;
-		y = h + mapImage.offset().top;
-		
-		span.css({"top": y + 10, "left": x + 10, "position": "absolute"});
-        
-        $("#content-wrapper").append(span);
-				
+        $("#content-wrapper").append(div);		
 	}	
+	
+	var span = $("<span />")
+	span.attr({"class": 'gradient'});
+    
+    x = w + mapImage.offset().left;
+	y = h + mapImage.offset().top;
+	
+	span.css({"top": y + 10, "left": x + 10, "position": "absolute"});
+    
+    $("#content-wrapper").append(span);
 }
 
 </script>

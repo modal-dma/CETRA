@@ -68,7 +68,7 @@ System.out.println("files " + mapDirs);
     {
     	var r = confirm("Sei sicuro di voler cancellare la mappa " + map + "?");
     	if (r == true) {
-    		var posting = $.get("deleteMap.jsp?name=" + map, null, function() {
+    		var posting = $.get("deleteMap.jsp?name=" + encodeURI(map), null, function() {
     			
     		})
     		.fail(function( error, textStatus, errorThrown ) {
